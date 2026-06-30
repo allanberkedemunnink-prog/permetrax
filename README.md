@@ -20,16 +20,26 @@ auditable. An optional LLM layer (Claude) only *explains* the engine's output �
 invents rules or changes a verdict. With no API key, a built-in explanation engine is used,
 so the app is fully functional offline.
 
+## Citations
+
+Every check links to its source. For the real jurisdiction, each rule shows the exact
+code section (e.g. *§ 10-2.2503(b)*) as a **clickable citation that opens the actual
+ordinance at that section** on eCode360. Sample jurisdictions are clearly labeled as
+illustrative (no official source).
+
 ## What it checks
 
-Three sample jurisdictions, each with its own limits:
+Jurisdictions:
 
-- **Township of Maple Grove, NJ** — R-1 Single-Family
-- **City of Lakeside, CA** — R-2 Low-Density
-- **Town of Brookfield, TX** — SF-2 Suburban
+- **★ City of Redondo Beach, CA** — R-1 Single-Family — **real code, every rule cited**
+  (transcribed from the Redondo Beach Municipal Code § 10-2.2503 on eCode360)
+- **Township of Maple Grove, NJ** — R-1 Single-Family *(fictional sample)*
+- **City of Lakeside, CA** — R-2 Low-Density *(fictional sample)*
+- **Town of Brookfield, TX** — SF-2 Suburban *(fictional sample)*
 
 Rules: max height, max stories, front/side/rear setbacks, lot coverage, floor-area ratio
-(FAR), minimum lot area & width, off-street parking, and impervious coverage.
+(FAR), minimum lot area & width, off-street parking, and impervious coverage (which rules
+apply depends on the jurisdiction).
 
 ## Run it
 

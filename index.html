@@ -95,6 +95,20 @@
   .impact h3 { color:#991b1b; margin-bottom:6px; }
   .impact .fix { color:#7f1d1d; font-size:14px; }
 
+  .cite { margin-top:8px; }
+  .cite-link { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600;
+    color:var(--brand); text-decoration:none; background:#eef2ff; border:1px solid #c7d2fe;
+    padding:3px 9px; border-radius:6px; }
+  .cite-link:hover { background:#e0e7ff; text-decoration:underline; }
+  .cite-link .ext { opacity:.65; font-weight:700; }
+  .cite-note { color:var(--muted); font-size:11px; margin-top:4px; line-height:1.45; }
+  .cite-sample { color:#94a3b8; font-style:italic; font-size:11.5px; margin-top:8px; }
+  .src-line { margin-top:10px; font-size:12.5px; color:#475569; }
+  .src-line a { color:var(--brand); font-weight:600; }
+  .src-badge { font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px; margin-left:8px; }
+  .src-official { background:var(--green-bg); color:var(--green); border:1px solid #bbf7d0; }
+  .src-sample { background:#f1f5f9; color:var(--muted); border:1px solid var(--line); }
+
   .jurisdiction { border-left:4px solid var(--brand); }
   .disclaimer { margin:8px 0 0; font-size:12.5px; color:var(--muted); line-height:1.5; }
 
@@ -327,6 +341,38 @@
 const DISCLAIMER = "This is a SIMPLIFIED, EDUCATIONAL sample dataset modeled on typical residential zoning. It is NOT the actual code of any real jurisdiction and must NOT be used for legal permit decisions. Always verify against the official municipal code and a licensed professional.";
 
 const JURISDICTIONS = {
+  redondo_beach: {
+    id:"redondo_beach", municipality:"City of Redondo Beach", state:"CA",
+    zone:"R-1 Single-Family Residential", dataset_version:"official · eCode360 (retrieved Jun 2026)",
+    source_type:"official",
+    code_name:"Redondo Beach Municipal Code, Title 10 Ch. 2 (Zoning), § 10-2.2503",
+    code_url:"https://ecode360.com/42654131",
+    disclaimer:"Rules transcribed from the City of Redondo Beach Municipal Code (eCode360, retrieved June 2026). Real ordinances change and contain nuances this simplified pre-check does NOT fully model — e.g. front/rear setback AVERAGING, second-story step-backs, FAR bonuses, ADUs, overlays, and variances. Each check links to the exact code section; always confirm against the official code and the City before relying on results. Not legal advice.",
+    rules:{
+      max_height_ft:{value:30,severity:"high",label:"Maximum building height",
+        why:"Height limits protect neighbors' light, air, privacy, and views in the single-family zone.",
+        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(b)",url:"https://ecode360.com/42654131#42654142"}},
+      max_floors:{value:2,severity:"medium",label:"Maximum number of stories",
+        why:"A two-story cap preserves the low-rise character of the R-1 zone.",
+        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(c)",url:"https://ecode360.com/42654131#42654143"}},
+      max_far:{value:0.65,severity:"medium",label:"Maximum floor-area ratio (FAR)",
+        why:"FAR caps total floor area relative to lot size, limiting bulk (FAR bonuses up to 0.80 may apply but are not modeled here).",
+        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(d)",url:"https://ecode360.com/42654131#42654144",
+          note:"Base FAR 0.65. Design-element bonuses can raise the cap to 0.80 — bonuses are not modeled here."}},
+      setback_front_ft:{value:20,severity:"high",label:"Minimum front-yard setback",
+        why:"Front setbacks maintain a consistent streetscape and sight lines.",
+        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(e)(1)",url:"https://ecode360.com/42654131#42654147",
+          note:"Absolute minimum (20 ft). The AVERAGE front setback must also be ≥ the lesser of 25% of lot depth or 25 ft — averaging is not modeled here."}},
+      setback_side_ft:{value:5,severity:"medium",label:"Minimum side-yard setback",
+        why:"Side setbacks provide light, air, and fire access between homes.",
+        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(e)",url:"https://ecode360.com/42654131#42654146",
+          note:"Minimum 5 ft full length of lot; narrower allowances exist for legal lots under 50 ft wide."}},
+      setback_rear_ft:{value:15,severity:"medium",label:"Minimum rear-yard setback",
+        why:"Rear yards protect private open space, drainage, and privacy.",
+        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(e)",url:"https://ecode360.com/42654131#42654146",
+          note:"Absolute minimum (15 ft). The rear yard must also AVERAGE ≥ 20% of lot depth — averaging is not modeled here."}}
+    }
+  },
   maple_grove: {
     id:"maple_grove", municipality:"Township of Maple Grove", state:"NJ",
     zone:"R-1 Single-Family Residential", dataset_version:"2026.1-sample", disclaimer:DISCLAIMER,
@@ -643,6 +689,13 @@ function fallbackExplanation(a) {
     a.violations.forEach(v => { if (rules[v.rule] && rules[v.rule].why && !seen.has(v.rule)) { seen.add(v.rule);
       L.push(`- *${rules[v.rule].label}:* ${rules[v.rule].why}`); } });
   }
+  const cited = a.violations.concat(a.compliant_checks).filter(x => rules[x.rule] && rules[x.rule].citation);
+  if (cited.length) {
+    L.push("\n**Sources**");
+    const seen = new Set();
+    cited.forEach(x => { const c = rules[x.rule].citation; if (!seen.has(c.section)) { seen.add(c.section);
+      L.push(`- ${rules[x.rule].label}: ${c.code} ${c.section} — ${c.url}`); } });
+  }
   return L.join("\n");
 }
 
@@ -707,11 +760,23 @@ function prettyKey(k){
   return k.replace(/_/g," ").replace(/\bsqft\b/g,"(sqft)").replace(/\bft\b/g,"(ft)").replace(/^\w/,c=>c.toUpperCase());
 }
 
-function checksColumn(title, variant, items, empty){
+function citationHTML(ruleKey, J){
+  const rule = J && J.rules ? J.rules[ruleKey] : null;
+  if (!rule) return "";
+  const c = rule.citation;
+  if (!c) return `<div class="cite-sample">⚠ Sample dataset — illustrative rule, no official source.</div>`;
+  return `<div class="cite">
+      <a class="cite-link" href="${esc(c.url)}" target="_blank" rel="noopener">📄 ${esc(c.code)} ${esc(c.section)} <span class="ext">↗</span></a>
+      ${c.note ? `<div class="cite-note">${esc(c.note)}</div>` : ""}
+    </div>`;
+}
+
+function checksColumn(title, variant, items, empty, J){
   const body = items.length===0 ? `<p class="muted">${empty}</p>` :
     `<ul class="check-list">`+items.map(it=>`<li>
         ${it.head?`<div class="check-head">${esc(it.head)}${it.tag?`<span class="sev sev-${it.tag}">${it.tag}</span>`:""}</div>`:""}
-        <div class="check-body">${esc(it.body)}</div></li>`).join("")+`</ul>`;
+        <div class="check-body">${esc(it.body)}</div>
+        ${it.rule ? citationHTML(it.rule, J) : ""}</li>`).join("")+`</ul>`;
   return `<div class="card check-col check-${variant}">
     <h3><span class="dot dot-${variant}"></span> ${title} <span class="count">(${items.length})</span></h3>
     ${body}</div>`;
@@ -724,6 +789,7 @@ function impactBanner(result){
     <h3>⚑ Biggest issue to fix first</h3>
     <div><strong>${esc(top.issue)}</strong> — ${esc(top.details)}</div>
     <div class="fix" style="margin-top:6px"><strong>Fix:</strong> ${esc(fixFor(top.rule, result.ruleset.rules))}</div>
+    ${citationHTML(top.rule, result.ruleset)}
   </div>`;
 }
 
@@ -759,7 +825,11 @@ function renderResults(result){
 
     <div class="card jurisdiction">
       <div><strong>${esc(rs.municipality)}, ${esc(rs.state)}</strong> · ${esc(rs.zone)}
-        <span class="muted"> · dataset ${esc(rs.dataset_version)}</span></div>
+        <span class="muted"> · dataset ${esc(rs.dataset_version)}</span>
+        <span class="src-badge ${rs.source_type==="official"?"src-official":"src-sample"}">${rs.source_type==="official"?"✓ Official code · cited":"Sample data"}</span></div>
+      ${rs.source_type==="official"
+        ? `<div class="src-line">Source: <a href="${esc(rs.code_url)}" target="_blank" rel="noopener">${esc(rs.code_name)} ↗</a> — each check below links to its exact code section.</div>`
+        : `<div class="src-line cite-sample">Fictional sample dataset — citations are illustrative only; there is no official source to link to.</div>`}
       <p class="disclaimer">${esc(rs.disclaimer)}</p>
     </div>
 
@@ -782,9 +852,9 @@ function renderResults(result){
     </div>
 
     <div class="checks-columns">
-      ${checksColumn("Violations","red", result.violations.map(v=>({head:v.issue,body:v.details,tag:v.severity})), "No violations found 🎉")}
-      ${checksColumn("Warnings","amber", result.warnings.map(w=>({body:w.message})), "No warnings.")}
-      ${checksColumn("Compliant","green", result.compliant_checks.map(c=>({body:c.message})), "No compliant checks recorded.")}
+      ${checksColumn("Violations","red", result.violations.map(v=>({head:v.issue,body:v.details,tag:v.severity,rule:v.rule})), "No violations found 🎉", rs)}
+      ${checksColumn("Warnings","amber", result.warnings.map(w=>({body:w.message})), "No warnings.", rs)}
+      ${checksColumn("Compliant","green", result.compliant_checks.map(c=>({body:c.message,rule:c.rule})), "No compliant checks recorded.", rs)}
     </div>
 
     <div class="card ai-card">
@@ -836,12 +906,12 @@ function openSaved(id){
    FORM HANDLING
    ============================================================ */
 const SAMPLE = {
-  jurisdiction:"maple_grove", building_type:"residential",
-  height_ft:42, width_ft:40, length_ft:60, floors:3,
-  lot_width_ft:55, lot_depth_ft:110,
-  front_setback_ft:18, side_setback_ft:8, rear_setback_ft:25,
-  parking_spaces:2, other_impervious_sqft:600,
-  notes:"Corner lot. Considering a finished attic."
+  jurisdiction:"redondo_beach", building_type:"residential",
+  height_ft:32, width_ft:35, length_ft:45, floors:2,
+  lot_width_ft:50, lot_depth_ft:100,
+  front_setback_ft:18, side_setback_ft:6, rear_setback_ft:18,
+  parking_spaces:2, other_impervious_sqft:400,
+  notes:"Two-story addition; checking height and front setback against the real R-1 code."
 };
 const NUM_FIELDS = ["height_ft","width_ft","length_ft","floors","lot_width_ft","lot_depth_ft",
   "front_setback_ft","side_setback_ft","rear_setback_ft","parking_spaces","other_impervious_sqft"];
@@ -849,7 +919,7 @@ const NUM_FIELDS = ["height_ft","width_ft","length_ft","floors","lot_width_ft","
 (function(){
   const sel = document.getElementById("jurisdiction");
   sel.innerHTML = Object.values(JURISDICTIONS)
-    .map(j=>`<option value="${j.id}">${esc(j.municipality)}, ${j.state} — ${esc(j.zone)}</option>`).join("");
+    .map(j=>`<option value="${j.id}">${j.source_type==="official"?"★ ":""}${esc(j.municipality)}, ${j.state} — ${esc(j.zone)} ${j.source_type==="official"?"(real code · cited)":"(sample)"}</option>`).join("");
 })();
 
 function readForm(){
