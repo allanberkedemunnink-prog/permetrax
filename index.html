@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Permetrax — Zoning Pre-Check</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231d4ed8'/%3E%3Cpath d='M20 44V20h12a8 8 0 0 1 0 16h-6v8z' fill='white'/%3E%3C/svg%3E" />
+<style>
+  :root {
+    --ink: #0f172a; --muted: #64748b; --line: #e2e8f0;
+    --brand: #1d4ed8; --brand-dark: #1e40af;
+    --red: #dc2626; --red-bg: #fef2f2;
+    --amber: #d97706; --amber-bg: #fffbeb;
+    --green: #16a34a; --green-bg: #f0fdf4; --orange: #ea580c;
+    --shadow: 0 1px 3px rgba(15,23,42,.08), 0 1px 2px rgba(15,23,42,.04);
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+         color:var(--ink); background:#f1f5f9; -webkit-font-smoothing:antialiased; }
+
+  .app-header { background:linear-gradient(120deg,#0f172a,#1e3a8a); color:#fff;
+    padding:18px 28px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+  .brand { display:flex; align-items:center; gap:14px; }
+  .logo { width:46px; height:46px; display:grid; place-items:center;
+    background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); border-radius:12px; }
+  .app-header h1 { margin:0; font-size:21px; letter-spacing:.02em; font-weight:800; }
+  .app-header h1 .ax { color:#93c5fd; }
+  .tagline { margin:2px 0 0; font-size:13px; color:#c7d2fe; }
+  .header-right { display:flex; align-items:center; gap:14px; }
+  .edu-badge { font-size:12px; font-weight:600; background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.25); padding:6px 12px; border-radius:999px; }
+
+  .layout { display:grid; grid-template-columns:430px 1fr; gap:22px;
+    padding:22px 28px; max-width:1440px; width:100%; margin:0 auto; }
+  .left-col, .right-col { display:flex; flex-direction:column; gap:18px; }
+  @media (max-width:980px) { .layout { grid-template-columns:1fr; } }
+
+  .card { background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:18px 20px; }
+  .card h2 { margin:0 0 4px; font-size:17px; }
+  .card h3 { margin:0 0 12px; font-size:15px; }
+
+  .form-header { display:flex; align-items:center; justify-content:space-between; }
+  .form-header .links { display:flex; gap:14px; }
+  fieldset { border:none; padding:0; margin:18px 0 0; }
+  legend { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--muted); padding:0; margin-bottom:10px; }
+  .grid { display:grid; gap:12px; }
+  .grid.two { grid-template-columns:1fr 1fr; }
+  .grid.three { grid-template-columns:1fr 1fr 1fr; }
+  .field { display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
+  .field:last-child { margin-bottom:0; }
+  .field-label { font-size:13px; font-weight:600; color:#334155; }
+  .req { color:var(--red); }
+  input, select, textarea { font:inherit; padding:9px 11px; border:1px solid var(--line);
+    border-radius:8px; background:#f8fafc; color:var(--ink); transition:border-color .15s, box-shadow .15s; width:100%; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--brand);
+    box-shadow:0 0 0 3px rgba(29,78,216,.12); background:#fff; }
+  textarea { resize:vertical; }
+
+  .primary-btn { margin-top:18px; width:100%; background:var(--brand); color:#fff; border:none;
+    padding:12px 16px; font-size:15px; font-weight:600; border-radius:9px; cursor:pointer; transition:background .15s; }
+  .primary-btn:hover:not(:disabled) { background:var(--brand-dark); }
+  .primary-btn:disabled { opacity:.6; cursor:not-allowed; }
+  .secondary-btn { background:#fff; color:var(--brand); border:1px solid var(--brand);
+    padding:12px 16px; font-weight:600; font-size:15px; border-radius:9px; cursor:pointer; }
+  .secondary-btn:hover { background:#eff6ff; }
+  .link-btn { background:none; border:none; color:var(--brand); font:inherit; font-weight:600;
+    cursor:pointer; padding:0; text-align:left; }
+  .link-btn:hover { text-decoration:underline; }
+  .muted { color:var(--muted); font-weight:400; }
+
+  .placeholder { color:var(--muted); }
+  .placeholder h2 { color:var(--ink); }
+  .placeholder ol { margin:12px 0 0; padding-left:20px; line-height:1.7; }
+  .error { border-color:var(--red); background:var(--red-bg); color:#991b1b; font-weight:500; }
+
+  .results { display:flex; flex-direction:column; gap:18px; }
+  .score-card { display:flex; align-items:center; gap:24px; }
+  .gauge-num { font-size:34px; font-weight:800; fill:var(--ink); }
+  .gauge-sub { font-size:13px; fill:var(--muted); }
+  .score-meta { flex:1; }
+  .score-label { font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700; }
+  .likelihood { font-size:19px; font-weight:700; margin:4px 0 12px; }
+  .counts { display:flex; gap:8px; flex-wrap:wrap; }
+  .pill { font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; }
+  .pill.red { background:var(--red-bg); color:var(--red); }
+  .pill.amber { background:var(--amber-bg); color:var(--amber); }
+  .pill.green { background:var(--green-bg); color:var(--green); }
+  .actions { display:flex; gap:10px; margin-top:16px; }
+  .actions button { flex:1; margin-top:0; padding:9px 12px; font-size:14px; }
+
+  .impact { border-left:4px solid var(--red); background:var(--red-bg); }
+  .impact h3 { color:#991b1b; margin-bottom:6px; }
+  .impact .fix { color:#7f1d1d; font-size:14px; }
+
+  .jurisdiction { border-left:4px solid var(--brand); }
+  .disclaimer { margin:8px 0 0; font-size:12.5px; color:var(--muted); line-height:1.5; }
+
+  .siteplan-wrap { display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap; }
+  .siteplan-wrap svg { background:#f8fafc; border:1px solid var(--line); border-radius:8px; }
+  .legend { font-size:12.5px; color:#475569; line-height:1.7; flex:1; min-width:200px; }
+  .legend .sw { display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:-1px; margin-right:6px; }
+
+  .summary-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(165px,1fr)); gap:10px; }
+  .summary-item { display:flex; flex-direction:column; gap:2px; background:#f8fafc;
+    border:1px solid var(--line); border-radius:8px; padding:8px 11px; }
+  .summary-key { font-size:11px; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); font-weight:700; }
+  .summary-val { font-size:14px; font-weight:600; }
+
+  .checks-columns { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  @media (max-width:1180px) { .checks-columns { grid-template-columns:1fr; } }
+  .check-col h3 { display:flex; align-items:center; gap:8px; }
+  .check-col .count { color:var(--muted); font-weight:600; }
+  .check-red { border-top:3px solid var(--red); }
+  .check-amber { border-top:3px solid var(--amber); }
+  .check-green { border-top:3px solid var(--green); }
+  .dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
+  .dot-red { background:var(--red); } .dot-amber { background:var(--amber); } .dot-green { background:var(--green); }
+  .check-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+  .check-list li { background:#f8fafc; border:1px solid var(--line); border-radius:8px; padding:10px 12px; }
+  .check-head { font-weight:700; font-size:14px; margin-bottom:4px; display:flex;
+    align-items:center; justify-content:space-between; gap:8px; }
+  .check-body { font-size:13px; color:#475569; line-height:1.5; }
+  .sev { font-size:10px; text-transform:uppercase; font-weight:800; padding:2px 7px;
+    border-radius:999px; letter-spacing:.03em; }
+  .sev-high { background:var(--red-bg); color:var(--red); }
+  .sev-medium { background:var(--amber-bg); color:var(--amber); }
+  .sev-low { background:#f1f5f9; color:var(--muted); }
+
+  .ai-card { border-top:3px solid var(--brand); }
+  .ai-header { display:flex; align-items:center; justify-content:space-between; }
+  .badge { font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; }
+  .badge-claude { background:#eef2ff; color:var(--brand); border:1px solid #c7d2fe; }
+  .badge-fallback { background:#f1f5f9; color:var(--muted); border:1px solid var(--line); }
+  .ai-body { font-size:14px; line-height:1.65; color:#334155; }
+  .ai-body h4 { margin:16px 0 6px; font-size:14px; color:var(--ink); }
+  .ai-body p { margin:8px 0; }
+  .ai-body ul { margin:6px 0; padding-left:20px; }
+  .ai-body li { margin:4px 0; }
+
+  .howitworks summary { cursor:pointer; font-weight:700; font-size:15px; }
+  .howitworks[open] summary { margin-bottom:10px; }
+  .howitworks .step { display:flex; gap:10px; margin:10px 0; font-size:13.5px; line-height:1.5; }
+  .howitworks .num { flex:none; width:24px; height:24px; border-radius:50%; background:#eef2ff;
+    color:var(--brand); font-weight:800; display:grid; place-items:center; font-size:12px; }
+  .howitworks .note { font-size:12.5px; color:var(--muted); margin-top:8px; border-top:1px solid var(--line); padding-top:10px; }
+
+  .history ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .history li { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .mini-score { font-size:12px; font-weight:800; padding:2px 8px; border-radius:6px; color:#fff; }
+  .s-green { background:var(--green); } .s-amber { background:var(--amber); }
+  .s-orange { background:var(--orange); } .s-red { background:var(--red); }
+
+  details.api-box { margin-top:14px; font-size:13px; }
+  details.api-box summary { cursor:pointer; color:var(--muted); font-weight:600; }
+  details.api-box .api-inner { margin-top:10px; }
+
+  .app-footer { text-align:center; font-size:12px; color:var(--muted); padding:18px;
+    border-top:1px solid var(--line); background:#fff; }
+
+  @media print {
+    body { background:#fff; }
+    .no-print { display:none !important; }
+    .layout { display:block; padding:0; }
+    .card { box-shadow:none; border-color:#cbd5e1; break-inside:avoid; }
+    .checks-columns { grid-template-columns:1fr 1fr 1fr; }
+    .app-footer { border:none; }
+  }
+</style>
+</head>
+<body>
+<header class="app-header no-print">
+  <div class="brand">
+    <div class="logo">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 11h.01"/><path d="M15 11h.01"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Perme<span class="ax">trax</span></h1>
+      <p class="tagline">Pre-submission zoning &amp; building-code check for residential projects</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="edu-badge">Educational pre-check · not legal advice</span>
+  </div>
+</header>
+
+<main class="layout">
+  <!-- LEFT: form + how it works + saved -->
+  <section class="left-col no-print">
+    <form class="card form" id="projectForm">
+      <div class="form-header">
+        <h2>Project parameters</h2>
+        <div class="links">
+          <button type="button" class="link-btn" id="loadSample">Load sample</button>
+          <button type="button" class="link-btn" id="clearForm" style="color:var(--muted)">Clear</button>
+        </div>
+      </div>
+
+      <fieldset>
+        <legend>Jurisdiction &amp; type</legend>
+        <label class="field"><span class="field-label">Jurisdiction (rule source) <span class="req">*</span></span>
+          <select name="jurisdiction" id="jurisdiction"></select></label>
+        <label class="field"><span class="field-label">Building type</span>
+          <select name="building_type">
+            <option value="residential">Residential</option>
+            <option value="commercial">Commercial (not modeled in MVP)</option>
+            <option value="small structure">Small structure (not modeled in MVP)</option>
+          </select></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Building envelope</legend>
+        <div class="grid two">
+          <label class="field"><span class="field-label">Height (ft) <span class="req">*</span></span>
+            <input type="number" step="any" min="0" name="height_ft" required /></label>
+          <label class="field"><span class="field-label">Floors / stories <span class="req">*</span></span>
+            <input type="number" min="1" name="floors" required /></label>
+          <label class="field"><span class="field-label">Footprint width (ft) <span class="req">*</span></span>
+            <input type="number" step="any" min="0" name="width_ft" required /></label>
+          <label class="field"><span class="field-label">Footprint length (ft) <span class="req">*</span></span>
+            <input type="number" step="any" min="0" name="length_ft" required /></label>
+        </div>
+        <p class="muted" style="font-size:12px;margin:4px 0 0">Width runs along the street; length is the depth toward the rear.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Lot context <span class="muted">(optional — enables coverage, FAR, lot &amp; site-plan)</span></legend>
+        <div class="grid two">
+          <label class="field"><span class="field-label">Lot width (ft)</span>
+            <input type="number" step="any" min="0" name="lot_width_ft" /></label>
+          <label class="field"><span class="field-label">Lot depth (ft)</span>
+            <input type="number" step="any" min="0" name="lot_depth_ft" /></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Planned setbacks <span class="muted">(optional — distance from each lot line)</span></legend>
+        <div class="grid three">
+          <label class="field"><span class="field-label">Front (ft)</span>
+            <input type="number" step="any" min="0" name="front_setback_ft" /></label>
+          <label class="field"><span class="field-label">Side (ft)</span>
+            <input type="number" step="any" min="0" name="side_setback_ft" /></label>
+          <label class="field"><span class="field-label">Rear (ft)</span>
+            <input type="number" step="any" min="0" name="rear_setback_ft" /></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Site details <span class="muted">(optional — parking &amp; impervious)</span></legend>
+        <div class="grid two">
+          <label class="field"><span class="field-label">Off-street parking spaces</span>
+            <input type="number" min="0" name="parking_spaces" /></label>
+          <label class="field"><span class="field-label">Other impervious area (sqft)</span>
+            <input type="number" step="any" min="0" name="other_impervious_sqft" placeholder="driveway, patio…" /></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Notes <span class="muted">(optional)</span></legend>
+        <textarea rows="3" name="notes"
+          placeholder="Variances, easements, flood zone, corner lot, overlay districts…"></textarea>
+      </fieldset>
+
+      <button type="submit" class="primary-btn" id="runBtn">Run compliance check</button>
+
+      <details class="api-box">
+        <summary>Optional: use live Claude explanations</summary>
+        <div class="api-inner">
+          <label class="field"><span class="field-label">Anthropic API key</span>
+            <input type="password" id="apiKey" placeholder="sk-ant-… (stored only in this browser)" /></label>
+          <p class="muted" style="font-size:12px;margin:6px 0 0;">
+            Leave blank to use the built-in offline explanation engine. A key calls Anthropic
+            directly from your browser — fine for personal/local use, not for a public deployment.
+          </p>
+        </div>
+      </details>
+    </form>
+
+    <details class="card howitworks">
+      <summary>How Permetrax works</summary>
+      <div class="step"><span class="num">1</span><div><strong>Deterministic rule engine.</strong>
+        Plain code compares your design to the jurisdiction's numeric limits and decides every pass/fail. No AI touches the math — results are reproducible.</div></div>
+      <div class="step"><span class="num">2</span><div><strong>Explanation layer.</strong>
+        The engine's output is turned into plain-English findings and fix suggestions (built-in, or live Claude if you add a key). The AI explains — it never changes a verdict or invents a rule.</div></div>
+      <div class="step"><span class="num">3</span><div><strong>Report &amp; save.</strong>
+        See a scored dashboard with a site-plan diagram, export a PDF, and save projects in your browser.</div></div>
+      <div class="note">Why split it this way? Compliance must be auditable. Letting an LLM "decide" zoning would be unreliable and unexplainable — so the LLM is confined to the one thing it's great at: explaining.</div>
+    </details>
+
+    <div class="card history" id="historyCard" style="display:none;">
+      <h3>Saved projects</h3>
+      <ul id="historyList"></ul>
+    </div>
+  </section>
+
+  <!-- RIGHT: results -->
+  <section class="right-col">
+    <div class="card placeholder" id="placeholder">
+      <h2>Run a check to see results</h2>
+      <p>Enter a building concept on the left (or click <em>Load sample</em>) and Permetrax compares
+        it against the selected jurisdiction's zoning rules — flagging violations, warnings, and
+        compliant items, drawing a site plan, and explaining everything in plain English.</p>
+      <ol>
+        <li>Deterministic rule engine computes pass/fail.</li>
+        <li>An explanation layer summarizes the results &amp; suggests fixes.</li>
+        <li>Export a report or save the project.</li>
+      </ol>
+    </div>
+    <div id="errorBox"></div>
+    <div id="results"></div>
+  </section>
+</main>
+
+<footer class="app-footer">
+  Permetrax — educational tool. Always verify against the official municipal code and a licensed
+  professional before submitting permits.
+</footer>
+
+<script>
+/* ============================================================
+   JURISDICTIONS  (simplified, fictional — NOT real codes)
+   ============================================================ */
+const DISCLAIMER = "This is a SIMPLIFIED, EDUCATIONAL sample dataset modeled on typical residential zoning. It is NOT the actual code of any real jurisdiction and must NOT be used for legal permit decisions. Always verify against the official municipal code and a licensed professional.";
+
+const JURISDICTIONS = {
+  maple_grove: {
+    id:"maple_grove", municipality:"Township of Maple Grove", state:"NJ",
+    zone:"R-1 Single-Family Residential", dataset_version:"2026.1-sample", disclaimer:DISCLAIMER,
+    rules:{
+      max_height_ft:{value:35,severity:"high",label:"Maximum building height",why:"Height limits preserve neighborhood character, protect solar access and sight lines, and keep buildings within reach of local fire equipment."},
+      max_floors:{value:3,severity:"medium",label:"Maximum number of stories",why:"Story limits cap occupancy density and egress complexity, independent of raw height."},
+      setback_front_ft:{value:25,severity:"high",label:"Minimum front-yard setback",why:"Front setbacks keep a consistent streetscape and maintain sight distance and room for utilities."},
+      setback_side_ft:{value:10,severity:"medium",label:"Minimum side-yard setback",why:"Side setbacks provide light, air, and fire separation between adjacent homes."},
+      setback_rear_ft:{value:20,severity:"medium",label:"Minimum rear-yard setback",why:"Rear setbacks protect private open space, drainage, and privacy."},
+      lot_coverage_max_percent:{value:40,severity:"high",label:"Maximum lot coverage (footprint)",why:"Coverage limits control stormwater runoff and keep structures proportional to the lot."},
+      max_far:{value:0.5,severity:"medium",label:"Maximum floor-area ratio (FAR)",why:"FAR caps total enclosed floor area relative to lot size, limiting overall mass."},
+      min_lot_area_sqft:{value:5000,severity:"high",label:"Minimum lot area",why:"Minimum lot area sets the base density of the zone."},
+      min_lot_width_ft:{value:50,severity:"medium",label:"Minimum lot width (frontage)",why:"Minimum frontage guarantees adequate street access and spacing between homes."},
+      max_impervious_percent:{value:55,severity:"medium",label:"Maximum impervious coverage",why:"Impervious limits (building + driveway + patio) protect groundwater recharge and reduce flooding."}
+    }
+  },
+  lakeside: {
+    id:"lakeside", municipality:"City of Lakeside", state:"CA",
+    zone:"R-2 Low-Density Residential", dataset_version:"2026.1-sample", disclaimer:DISCLAIMER,
+    rules:{
+      max_height_ft:{value:30,severity:"high",label:"Maximum building height",why:"Coastal/low-density height limits protect views, solar access, and neighborhood scale."},
+      max_floors:{value:2,severity:"medium",label:"Maximum number of stories",why:"Two-story cap maintains the low-density character of the zone."},
+      setback_front_ft:{value:20,severity:"high",label:"Minimum front-yard setback",why:"Front setbacks preserve streetscape and parkway plantings."},
+      setback_side_ft:{value:5,severity:"medium",label:"Minimum side-yard setback",why:"Side setbacks provide light, air, and fire access on tighter urban lots."},
+      setback_rear_ft:{value:15,severity:"medium",label:"Minimum rear-yard setback",why:"Rear setbacks protect usable private open space."},
+      lot_coverage_max_percent:{value:35,severity:"high",label:"Maximum lot coverage (footprint)",why:"Lower coverage protects open space and drainage in a denser zone."},
+      max_far:{value:0.45,severity:"medium",label:"Maximum floor-area ratio (FAR)",why:"Tighter FAR limits bulk on smaller lots."},
+      min_lot_area_sqft:{value:6000,severity:"high",label:"Minimum lot area",why:"Sets base density for the low-density zone."},
+      min_lot_width_ft:{value:60,severity:"medium",label:"Minimum lot width (frontage)",why:"Ensures adequate frontage and driveway access."},
+      min_parking_spaces:{value:2,severity:"medium",label:"Minimum off-street parking",why:"Off-street parking minimums prevent overflow onto narrow streets."}
+    }
+  },
+  brookfield: {
+    id:"brookfield", municipality:"Town of Brookfield", state:"TX",
+    zone:"SF-2 Suburban Single-Family", dataset_version:"2026.1-sample", disclaimer:DISCLAIMER,
+    rules:{
+      max_height_ft:{value:40,severity:"high",label:"Maximum building height",why:"Generous suburban height limit still keeps homes within fire-equipment reach."},
+      max_floors:{value:3,severity:"medium",label:"Maximum number of stories",why:"Story cap limits density and egress complexity."},
+      setback_front_ft:{value:30,severity:"high",label:"Minimum front-yard setback",why:"Deep front setbacks define the suburban streetscape and driveway depth."},
+      setback_side_ft:{value:8,severity:"medium",label:"Minimum side-yard setback",why:"Side setbacks provide separation and access between homes."},
+      setback_rear_ft:{value:20,severity:"medium",label:"Minimum rear-yard setback",why:"Rear setbacks protect backyard open space and drainage."},
+      lot_coverage_max_percent:{value:45,severity:"high",label:"Maximum lot coverage (footprint)",why:"Coverage limits manage stormwater on larger suburban lots."},
+      max_far:{value:0.6,severity:"medium",label:"Maximum floor-area ratio (FAR)",why:"FAR caps total mass relative to the larger lots."},
+      min_lot_area_sqft:{value:7500,severity:"high",label:"Minimum lot area",why:"Larger minimum lot area defines the suburban density."},
+      min_lot_width_ft:{value:65,severity:"medium",label:"Minimum lot width (frontage)",why:"Wider frontage suits suburban lot patterns and driveways."},
+      min_parking_spaces:{value:2,severity:"medium",label:"Minimum off-street parking",why:"Two-space minimum reflects car-dependent suburban context."},
+      max_impervious_percent:{value:60,severity:"medium",label:"Maximum impervious coverage",why:"Impervious limits protect drainage capacity in suburban watersheds."}
+    }
+  }
+};
+
+const SEVERITY_PENALTY = { high:25, medium:15, low:10 };
+const WARNING_PENALTY = 4;
+const r1 = (v,n=1) => Math.round(v*10**n)/10**n;
+const cap = s => s.charAt(0).toUpperCase()+s.slice(1);
+const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const isNum = v => v !== null && v !== undefined && v !== "" && !isNaN(v);
+
+/* ============================================================
+   FIX SUGGESTIONS  (shared by engine + impact banner)
+   ============================================================ */
+function fixFor(ruleKey, rules) {
+  const lim = rules[ruleKey] ? rules[ruleKey].value : "";
+  const map = {
+    max_height_ft:`Reduce overall height to ${lim} ft or less (lower floor-to-floor heights or roof pitch).`,
+    max_floors:`Reduce the design to ${lim} stories or fewer.`,
+    setback_front_ft:`Move the structure back so the front yard is at least ${lim} ft.`,
+    setback_side_ft:`Increase the side yard to at least ${lim} ft (narrow or shift the footprint).`,
+    setback_rear_ft:`Increase the rear yard to at least ${lim} ft.`,
+    lot_coverage_max_percent:`Shrink the footprint so coverage drops to ${lim}% or less, or use a larger lot.`,
+    max_far:`Reduce total floor area (fewer floors or smaller footprint) to keep FAR at ${lim} or below.`,
+    min_lot_area_sqft:`This lot is below the ${lim} sqft minimum; the parcel may not be buildable without a variance.`,
+    min_lot_width_ft:`The frontage is below the ${lim} ft minimum; a variance or lot reconfiguration may be required.`,
+    min_parking_spaces:`Provide at least ${lim} off-street parking spaces.`,
+    max_impervious_percent:`Reduce paved/impervious area (smaller driveway/patio or use pervious paving) to ${lim}% or less.`
+  };
+  return map[ruleKey] || `Adjust the design to satisfy '${rules[ruleKey] ? rules[ruleKey].label : ruleKey}'.`;
+}
+
+/* ============================================================
+   DETERMINISTIC RULE ENGINE  (no AI — pure logic)
+   ============================================================ */
+function analyze(p, J) {
+  const rules = J.rules;
+  const violations = [], warnings = [], compliant = [];
+  const footprint = p.width_ft * p.length_ft;
+  const totalFloorArea = footprint * p.floors;
+
+  const vMax = (key, actual, unit, label) => {
+    if (!rules[key]) return;
+    const rule = rules[key];
+    if (actual > rule.value)
+      violations.push({ rule:key, issue:`${label} exceeds the limit`,
+        details:`Requested: ${r1(actual)}${unit}, Allowed: ${rule.value}${unit}.`, severity:rule.severity });
+    else
+      compliant.push({ rule:key, message:`${label} ${r1(actual)}${unit} is within the ${rule.value}${unit} limit.` });
+  };
+  const vMin = (key, actual, unit, label) => {
+    if (!rules[key]) return;
+    const rule = rules[key];
+    if (actual < rule.value)
+      violations.push({ rule:key, issue:`${label} is below the minimum`,
+        details:`Provided: ${r1(actual)}${unit}, Minimum: ${rule.value}${unit}.`, severity:rule.severity });
+    else
+      compliant.push({ rule:key, message:`${label} ${r1(actual)}${unit} meets the ${rule.value}${unit} minimum.` });
+  };
+  const vSetback = (key, actual, side) => {
+    if (!rules[key]) return;
+    const rule = rules[key];
+    if (!isNum(actual)) {
+      warnings.push({ rule:key, message:`${cap(side)}-yard setback not provided — required minimum is ${rule.value} ft. Enter your planned setback to check it.` });
+      return;
+    }
+    if (actual < rule.value)
+      violations.push({ rule:key, issue:`${cap(side)}-yard setback is too small`,
+        details:`Planned: ${r1(actual)} ft, Required minimum: ${rule.value} ft.`, severity:rule.severity });
+    else
+      compliant.push({ rule:key, message:`${cap(side)}-yard setback ${r1(actual)} ft meets the ${rule.value} ft minimum.` });
+  };
+
+  vMax("max_height_ft", p.height_ft, "ft", "Building height");
+  vMax("max_floors", p.floors, " floors", "Number of stories");
+  vSetback("setback_front_ft", p.front_setback_ft, "front");
+  vSetback("setback_side_ft", p.side_setback_ft, "side");
+  vSetback("setback_rear_ft", p.rear_setback_ft, "rear");
+
+  const hasLot = isNum(p.lot_width_ft) && isNum(p.lot_depth_ft);
+  const lotArea = hasLot ? p.lot_width_ft * p.lot_depth_ft : 0;
+
+  if (hasLot) {
+    const coverage = (footprint / lotArea) * 100;
+    if (rules.lot_coverage_max_percent) {
+      const rule = rules.lot_coverage_max_percent;
+      if (coverage > rule.value)
+        violations.push({ rule:"lot_coverage_max_percent", issue:"Building footprint covers too much of the lot",
+          details:`Footprint ${Math.round(footprint)} sqft on a ${Math.round(lotArea)} sqft lot = ${r1(coverage)}% coverage; allowed maximum is ${rule.value}%.`, severity:rule.severity });
+      else
+        compliant.push({ rule:"lot_coverage_max_percent", message:`Lot coverage ${r1(coverage)}% is within the ${rule.value}% maximum.` });
+    }
+
+    if (rules.max_far) {
+      const far = totalFloorArea / lotArea, rule = rules.max_far;
+      if (far > rule.value)
+        violations.push({ rule:"max_far", issue:"Total floor area is too large for the lot (FAR exceeded)",
+          details:`Total floor area ${Math.round(totalFloorArea)} sqft / lot ${Math.round(lotArea)} sqft = FAR ${r1(far,2)}; allowed maximum is ${rule.value}.`, severity:rule.severity });
+      else
+        compliant.push({ rule:"max_far", message:`Floor-area ratio ${r1(far,2)} is within the ${rule.value} maximum.` });
+    }
+
+    if (rules.min_lot_area_sqft) {
+      const rule = rules.min_lot_area_sqft;
+      if (lotArea < rule.value)
+        violations.push({ rule:"min_lot_area_sqft", issue:"Lot is smaller than the minimum buildable area",
+          details:`Lot is ${Math.round(lotArea)} sqft; minimum required is ${rule.value} sqft.`, severity:rule.severity });
+      else
+        compliant.push({ rule:"min_lot_area_sqft", message:`Lot area ${Math.round(lotArea)} sqft meets the ${rule.value} sqft minimum.` });
+    }
+
+    vMin("min_lot_width_ft", p.lot_width_ft, "ft", "Lot width");
+
+    if (rules.max_impervious_percent) {
+      const rule = rules.max_impervious_percent;
+      const other = isNum(p.other_impervious_sqft) ? p.other_impervious_sqft : 0;
+      const impervious = footprint + other;
+      const impPct = (impervious / lotArea) * 100;
+      const noteMissing = !isNum(p.other_impervious_sqft) ? " (driveway/patio not entered — counts footprint only)" : "";
+      if (impPct > rule.value)
+        violations.push({ rule:"max_impervious_percent", issue:"Impervious coverage exceeds the limit",
+          details:`Impervious ${Math.round(impervious)} sqft / lot ${Math.round(lotArea)} sqft = ${r1(impPct)}%${noteMissing}; allowed maximum is ${rule.value}%.`, severity:rule.severity });
+      else
+        compliant.push({ rule:"max_impervious_percent", message:`Impervious coverage ${r1(impPct)}%${noteMissing} is within the ${rule.value}% maximum.` });
+    }
+  } else {
+    const lotRules = ["lot coverage","FAR","minimum lot area","minimum lot width"];
+    if (rules.max_impervious_percent) lotRules.push("impervious coverage");
+    warnings.push({ rule:"lot_dimensions", message:`Lot width/depth not provided — ${lotRules.join(", ")} could not be evaluated. Add lot dimensions for a complete check and site plan.` });
+  }
+
+  if (rules.min_parking_spaces) {
+    const rule = rules.min_parking_spaces;
+    if (!isNum(p.parking_spaces))
+      warnings.push({ rule:"min_parking_spaces", message:`Off-street parking not provided — minimum required is ${rule.value} spaces.` });
+    else if (p.parking_spaces < rule.value)
+      violations.push({ rule:"min_parking_spaces", issue:"Too few off-street parking spaces",
+        details:`Provided: ${p.parking_spaces}, Minimum: ${rule.value}.`, severity:rule.severity });
+    else
+      compliant.push({ rule:"min_parking_spaces", message:`${p.parking_spaces} off-street parking spaces meet the ${rule.value}-space minimum.` });
+  }
+
+  if (p.building_type && p.building_type !== "residential")
+    warnings.unshift({ rule:"building_type_scope", message:`Permetrax only models RESIDENTIAL zoning. Results for '${p.building_type}' use residential rules as a rough proxy and should not be relied on.` });
+  if (p.notes && p.notes.trim())
+    warnings.push({ rule:"free_text_notes", message:"Your notes may describe conditions (variances, easements, overlays, flood zone, corner lot) Permetrax does not model. They were noted but not scored." });
+
+  let penalty = violations.reduce((s,v)=> s + (SEVERITY_PENALTY[v.severity]||10), 0);
+  penalty += WARNING_PENALTY * warnings.length;
+  const score = Math.max(0, Math.min(100, 100 - penalty));
+
+  return {
+    compliance_score: score,
+    permit_likelihood: likelihood(score, violations),
+    violations, warnings, compliant_checks: compliant,
+    project_summary: summary(p, J, footprint, totalFloorArea, hasLot, lotArea),
+    ruleset: J, _input: p
+  };
+}
+
+function likelihood(score, violations) {
+  const hasHigh = violations.some(v => v.severity === "high");
+  if (score >= 85 && !hasHigh) return "Likely to pass an initial zoning pre-screen";
+  if (score >= 65) return "Borderline — revisions recommended before submitting";
+  if (score >= 40) return "Significant issues — likely to be rejected as drawn";
+  return "Unlikely to pass — major redesign needed";
+}
+
+function summary(p, J, footprint, totalFloorArea, hasLot, lotArea) {
+  const s = {
+    jurisdiction:`${J.municipality}, ${J.state}`, zone:J.zone,
+    building_type:p.building_type, height_ft:p.height_ft, floors:p.floors,
+    footprint_ft:`${p.width_ft} x ${p.length_ft}`,
+    footprint_sqft:Math.round(footprint), total_floor_area_sqft:Math.round(totalFloorArea)
+  };
+  if (hasLot) { s.lot_ft = `${p.lot_width_ft} x ${p.lot_depth_ft}`; s.lot_area_sqft = Math.round(lotArea); }
+  if (isNum(p.parking_spaces)) s.parking_spaces = p.parking_spaces;
+  if (p.notes) s.notes = p.notes;
+  return s;
+}
+
+/* ============================================================
+   SITE-PLAN DIAGRAM  (SVG, to scale)
+   ============================================================ */
+function sitePlanSVG(result) {
+  const p = result._input;
+  if (!isNum(p.lot_width_ft) || !isNum(p.lot_depth_ft))
+    return `<p class="muted">Add lot width &amp; depth to generate a scaled site plan.</p>`;
+
+  const lotW = p.lot_width_ft, lotD = p.lot_depth_ft;
+  const VB_W = 360, VB_H = 320, pad = 46;
+  const scale = Math.min((VB_W - 2*pad)/lotW, (VB_H - 2*pad)/lotD);
+  const lotPW = lotW*scale, lotPD = lotD*scale;
+  const ox = (VB_W - lotPW)/2, oy = (VB_H - lotPD)/2;
+  const right = ox + lotPW, bottom = oy + lotPD;
+
+  const fpW = p.width_ft, fpD = p.length_ft;
+  const sideSB = isNum(p.side_setback_ft) ? p.side_setback_ft : null;
+  const frontSB = isNum(p.front_setback_ft) ? p.front_setback_ft : null;
+  const xft = sideSB != null ? sideSB : (lotW - fpW)/2;          // from left lot line
+  const frontGap = frontSB != null ? frontSB : (lotD - fpD)/2;    // from front (street, bottom)
+
+  let bx = ox + xft*scale;
+  let bw = fpW*scale;
+  let bh = fpD*scale;
+  let by = bottom - (frontGap + fpD)*scale;
+
+  const viol = new Set(result.violations.map(v => v.rule));
+  const overflow = xft < 0 || xft + fpW > lotW || frontGap < 0 || frontGap + fpD > lotD;
+  const bad = overflow || viol.has("setback_front_ft") || viol.has("setback_side_ft") ||
+              viol.has("setback_rear_ft") || viol.has("lot_coverage_max_percent");
+
+  bx = Math.max(ox, Math.min(bx, right));
+  by = Math.max(oy, Math.min(by, bottom));
+  bw = Math.min(bw, right - bx);
+  bh = Math.min(bh, bottom - by);
+
+  const fill = bad ? "#fecaca" : "#bbf7d0";
+  const stroke = bad ? "#dc2626" : "#16a34a";
+  const dimColor = k => viol.has(k) ? "#dc2626" : "#475569";
+  const cx = bx + bw/2;
+  const frontLabel = `${frontSB != null ? r1(frontSB) : "?"}ft`;
+  const sideLabel  = `${sideSB != null ? r1(sideSB) : "?"}ft`;
+  const ss = "font:600 11px sans-serif";
+
+  return `
+  <svg width="${VB_W}" height="${VB_H}" viewBox="0 0 ${VB_W} ${VB_H}">
+    <rect x="${ox}" y="${oy}" width="${lotPW}" height="${lotPD}" fill="#fff" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="${ox-10}" y1="${bottom+10}" x2="${right+10}" y2="${bottom+10}" stroke="#cbd5e1" stroke-width="6"/>
+    <text x="${ox + lotPW/2}" y="${bottom+26}" text-anchor="middle" fill="#94a3b8" style="font:600 10px sans-serif">STREET (front)</text>
+    <rect x="${bx}" y="${by}" width="${Math.max(bw,2)}" height="${Math.max(bh,2)}" fill="${fill}" stroke="${stroke}" stroke-width="2" rx="2"/>
+    <text x="${cx}" y="${by + bh/2 + 4}" text-anchor="middle" fill="${stroke}" style="font:700 11px sans-serif">House</text>
+    <line x1="${cx}" y1="${by + bh}" x2="${cx}" y2="${bottom}" stroke="${dimColor('setback_front_ft')}" stroke-width="1" stroke-dasharray="3 2"/>
+    <text x="${cx + 6}" y="${by + bh + (bottom - (by+bh))/2 + 3}" fill="${dimColor('setback_front_ft')}" style="${ss}">${frontLabel}</text>
+    <line x1="${ox}" y1="${by + bh/2}" x2="${bx}" y2="${by + bh/2}" stroke="${dimColor('setback_side_ft')}" stroke-width="1" stroke-dasharray="3 2"/>
+    <text x="${ox + (bx-ox)/2}" y="${by + bh/2 - 5}" text-anchor="middle" fill="${dimColor('setback_side_ft')}" style="${ss}">${sideLabel}</text>
+    <text x="${ox + lotPW/2}" y="${oy - 12}" text-anchor="middle" fill="#64748b" style="${ss}">${lotW} ft wide</text>
+    <text x="${ox - 14}" y="${oy + lotPD/2}" text-anchor="middle" fill="#64748b" transform="rotate(-90 ${ox-14} ${oy+lotPD/2})" style="${ss}">${lotD} ft deep</text>
+  </svg>`;
+}
+
+/* ============================================================
+   EXPLANATION — offline fallback (rule-grounded)
+   ============================================================ */
+function fallbackExplanation(a) {
+  const rules = a.ruleset.rules, L = [];
+  L.push("**Summary**");
+  L.push(`Compliance score ${a.compliance_score}/100 — ${a.permit_likelihood.toLowerCase()}. `
+    + `${a.violations.length} potential violation(s), ${a.warnings.length} warning(s), and `
+    + `${a.compliant_checks.length} item(s) that check out against the ${a.ruleset.zone} rules in ${a.project_summary.jurisdiction}.`);
+
+  L.push("\n**What's wrong and why it matters**");
+  if (a.violations.length) a.violations.forEach(v => L.push(`- **${v.issue}** — ${v.details} ${rules[v.rule] ? rules[v.rule].why : ""}`.trim()));
+  else L.push("- No violations were detected against the modeled rules.");
+
+  if (a.violations.length) {
+    L.push("\n**Suggested design changes**");
+    a.violations.forEach(v => L.push(`- ${fixFor(v.rule, rules)}`));
+  }
+  if (a.warnings.length) {
+    L.push("\n**Warnings / unevaluated items**");
+    a.warnings.forEach(w => L.push(`- ${w.message}`));
+  }
+  if (a.violations.length) {
+    L.push("\n**Why these rules exist**");
+    const seen = new Set();
+    a.violations.forEach(v => { if (rules[v.rule] && rules[v.rule].why && !seen.has(v.rule)) { seen.add(v.rule);
+      L.push(`- *${rules[v.rule].label}:* ${rules[v.rule].why}`); } });
+  }
+  return L.join("\n");
+}
+
+/* ============================================================
+   EXPLANATION — optional live Claude (browser direct)
+   ============================================================ */
+async function claudeExplanation(a, apiKey) {
+  const system = `You are Permetrax. You are given the output of a deterministic zoning pre-check engine. STRICT: use ONLY the rules and numbers provided; do NOT invent rules; do NOT change the engine's pass/fail conclusions; this is educational, not legal advice. Respond in short markdown sections: **Summary**, **What's wrong and why it matters**, **Suggested design changes**, **Why these rules exist**.`;
+  const payload = {
+    project_summary:a.project_summary, ruleset:a.ruleset,
+    compliance_score:a.compliance_score, permit_likelihood:a.permit_likelihood,
+    violations:a.violations, warnings:a.warnings, compliant_checks:a.compliant_checks
+  };
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST",
+    headers:{ "content-type":"application/json", "x-api-key":apiKey,
+      "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true" },
+    body:JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:1200, system,
+      messages:[{ role:"user", content:"Explain this pre-check result for the user using ONLY the rules/numbers here:\n\n"+JSON.stringify(payload,null,2) }] })
+  });
+  if (!res.ok) { const t = await res.text(); throw new Error(`Claude API ${res.status}: ${t.slice(0,200)}`); }
+  const data = await res.json();
+  return (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("").trim();
+}
+
+/* ============================================================
+   RENDERING
+   ============================================================ */
+function scoreColor(s){ return s>=85?"green":s>=65?"amber":s>=40?"orange":"red"; }
+
+function renderMarkdown(md){
+  const inline = t => esc(t)
+    .replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>")
+    .replace(/\*([^*]+)\*/g,"<em>$1</em>")
+    .replace(/_([^_]+)_/g,"<em>$1</em>");
+  const lines = md.split("\n"); let html="", list=null;
+  const flush = () => { if(list){ html+="<ul>"+list.map(i=>`<li>${inline(i)}</li>`).join("")+"</ul>"; list=null; } };
+  lines.forEach(raw=>{
+    const line = raw.replace(/\s+$/,"");
+    if (/^\s*[-*]\s+/.test(line)) { (list=list||[]).push(line.replace(/^\s*[-*]\s+/,"")); }
+    else if (/^#{1,6}\s/.test(line)) { flush(); html+=`<h4>${inline(line.replace(/^#{1,6}\s/,""))}</h4>`; }
+    else if (line.trim()==="") { flush(); }
+    else { flush(); html+=`<p>${inline(line)}</p>`; }
+  });
+  flush(); return html;
+}
+
+function gaugeSVG(value){
+  const color = scoreColor(value);
+  const stroke = {green:"#16a34a",amber:"#d97706",orange:"#ea580c",red:"#dc2626"}[color];
+  const radius=52, circ=2*Math.PI*radius, offset=circ*(1-value/100);
+  return `<svg width="140" height="140" viewBox="0 0 140 140">
+    <circle cx="70" cy="70" r="${radius}" fill="none" stroke="#e2e8f0" stroke-width="12"/>
+    <circle cx="70" cy="70" r="${radius}" fill="none" stroke="${stroke}" stroke-width="12"
+      stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${offset}" transform="rotate(-90 70 70)"/>
+    <text x="70" y="66" text-anchor="middle" class="gauge-num">${value}</text>
+    <text x="70" y="88" text-anchor="middle" class="gauge-sub">/ 100</text>
+  </svg>`;
+}
+
+function prettyKey(k){
+  return k.replace(/_/g," ").replace(/\bsqft\b/g,"(sqft)").replace(/\bft\b/g,"(ft)").replace(/^\w/,c=>c.toUpperCase());
+}
+
+function checksColumn(title, variant, items, empty){
+  const body = items.length===0 ? `<p class="muted">${empty}</p>` :
+    `<ul class="check-list">`+items.map(it=>`<li>
+        ${it.head?`<div class="check-head">${esc(it.head)}${it.tag?`<span class="sev sev-${it.tag}">${it.tag}</span>`:""}</div>`:""}
+        <div class="check-body">${esc(it.body)}</div></li>`).join("")+`</ul>`;
+  return `<div class="card check-col check-${variant}">
+    <h3><span class="dot dot-${variant}"></span> ${title} <span class="count">(${items.length})</span></h3>
+    ${body}</div>`;
+}
+
+function impactBanner(result){
+  if (!result.violations.length) return "";
+  const top = result.violations.slice().sort((a,b)=>(SEVERITY_PENALTY[b.severity]||0)-(SEVERITY_PENALTY[a.severity]||0))[0];
+  return `<div class="card impact">
+    <h3>⚑ Biggest issue to fix first</h3>
+    <div><strong>${esc(top.issue)}</strong> — ${esc(top.details)}</div>
+    <div class="fix" style="margin-top:6px"><strong>Fix:</strong> ${esc(fixFor(top.rule, result.ruleset.rules))}</div>
+  </div>`;
+}
+
+let LAST = null, LAST_INPUT = null;
+
+function renderResults(result){
+  LAST = result; LAST_INPUT = result._input;
+  document.getElementById("placeholder").style.display = "none";
+  const rs = result.ruleset;
+  const summaryItems = Object.entries(result.project_summary)
+    .map(([k,v])=>`<div class="summary-item"><span class="summary-key">${esc(prettyKey(k))}</span><span class="summary-val">${esc(v)}</span></div>`).join("");
+
+  document.getElementById("results").innerHTML = `
+  <div class="results">
+    <div class="card score-card">
+      <div>${gaugeSVG(result.compliance_score)}</div>
+      <div class="score-meta">
+        <div class="score-label">Permit Likelihood Score</div>
+        <div class="likelihood">${esc(result.permit_likelihood)}</div>
+        <div class="counts">
+          <span class="pill red">${result.violations.length} violations</span>
+          <span class="pill amber">${result.warnings.length} warnings</span>
+          <span class="pill green">${result.compliant_checks.length} compliant</span>
+        </div>
+        <div class="actions no-print">
+          <button class="primary-btn" id="saveBtn">Save project</button>
+          <button class="secondary-btn" onclick="window.print()">Export PDF</button>
+        </div>
+      </div>
+    </div>
+
+    ${impactBanner(result)}
+
+    <div class="card jurisdiction">
+      <div><strong>${esc(rs.municipality)}, ${esc(rs.state)}</strong> · ${esc(rs.zone)}
+        <span class="muted"> · dataset ${esc(rs.dataset_version)}</span></div>
+      <p class="disclaimer">${esc(rs.disclaimer)}</p>
+    </div>
+
+    <div class="card">
+      <h3>Site plan (to scale)</h3>
+      <div class="siteplan-wrap">
+        ${sitePlanSVG(result)}
+        <div class="legend">
+          <div><span class="sw" style="background:#bbf7d0;border:1px solid #16a34a"></span> Building footprint — compliant placement</div>
+          <div><span class="sw" style="background:#fecaca;border:1px solid #dc2626"></span> Building footprint — setback/coverage issue</div>
+          <div><span class="sw" style="background:#fff;border:1px solid #94a3b8"></span> Lot boundary</div>
+          <div style="margin-top:8px;color:#64748b">Dashed lines show front &amp; side setback gaps. Red dimension text marks a violated setback. Missing setbacks are estimated (centered) and shown as “?”.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Project summary</h3>
+      <div class="summary-grid">${summaryItems}</div>
+    </div>
+
+    <div class="checks-columns">
+      ${checksColumn("Violations","red", result.violations.map(v=>({head:v.issue,body:v.details,tag:v.severity})), "No violations found 🎉")}
+      ${checksColumn("Warnings","amber", result.warnings.map(w=>({body:w.message})), "No warnings.")}
+      ${checksColumn("Compliant","green", result.compliant_checks.map(c=>({body:c.message})), "No compliant checks recorded.")}
+    </div>
+
+    <div class="card ai-card">
+      <div class="ai-header">
+        <h3>AI explanation &amp; suggested fixes</h3>
+        <span class="badge ${result.ai_source==="claude"?"badge-claude":"badge-fallback"}" id="aiBadge">
+          ${result.ai_source==="claude"?"Generated by Claude":"Offline engine"}</span>
+      </div>
+      <div class="ai-body" id="aiBody">${renderMarkdown(result.ai_explanation)}</div>
+    </div>
+  </div>`;
+
+  document.getElementById("saveBtn").addEventListener("click", saveProject);
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+/* ============================================================
+   SAVED PROJECTS  (localStorage — no backend)
+   ============================================================ */
+const STORE = "permetrax_projects";
+function loadHistory(){
+  let list = [];
+  try { list = JSON.parse(localStorage.getItem(STORE)||"[]"); } catch {}
+  const card = document.getElementById("historyCard");
+  const ul = document.getElementById("historyList");
+  if (!list.length) { card.style.display="none"; return; }
+  card.style.display="block";
+  ul.innerHTML = list.map(h=>`<li>
+      <button class="link-btn" data-id="${h.id}">${esc(h.label)}</button>
+      <span class="mini-score s-${scoreColor(h.score)}">${h.score}</span></li>`).join("");
+  ul.querySelectorAll("button[data-id]").forEach(b=> b.addEventListener("click",()=>openSaved(Number(b.dataset.id))));
+}
+function saveProject(){
+  if (!LAST) return;
+  let list = []; try { list = JSON.parse(localStorage.getItem(STORE)||"[]"); } catch {}
+  list.unshift({ id:Date.now(), label:LAST.project_summary.jurisdiction, score:LAST.compliance_score, result:LAST });
+  localStorage.setItem(STORE, JSON.stringify(list.slice(0,30)));
+  const btn = document.getElementById("saveBtn");
+  if (btn){ btn.textContent="Saved ✓"; btn.disabled=true; }
+  loadHistory();
+}
+function openSaved(id){
+  let list = []; try { list = JSON.parse(localStorage.getItem(STORE)||"[]"); } catch {}
+  const found = list.find(h=>h.id===id);
+  if (found){ const r = found.result; r.ai_source = r.ai_source || "fallback"; renderResults(r); }
+}
+
+/* ============================================================
+   FORM HANDLING
+   ============================================================ */
+const SAMPLE = {
+  jurisdiction:"maple_grove", building_type:"residential",
+  height_ft:42, width_ft:40, length_ft:60, floors:3,
+  lot_width_ft:55, lot_depth_ft:110,
+  front_setback_ft:18, side_setback_ft:8, rear_setback_ft:25,
+  parking_spaces:2, other_impervious_sqft:600,
+  notes:"Corner lot. Considering a finished attic."
+};
+const NUM_FIELDS = ["height_ft","width_ft","length_ft","floors","lot_width_ft","lot_depth_ft",
+  "front_setback_ft","side_setback_ft","rear_setback_ft","parking_spaces","other_impervious_sqft"];
+
+(function(){
+  const sel = document.getElementById("jurisdiction");
+  sel.innerHTML = Object.values(JURISDICTIONS)
+    .map(j=>`<option value="${j.id}">${esc(j.municipality)}, ${j.state} — ${esc(j.zone)}</option>`).join("");
+})();
+
+function readForm(){
+  const f = document.getElementById("projectForm");
+  const get = n => f.elements[n].value;
+  const num = v => v===""||v==null ? null : Number(v);
+  const p = { jurisdiction:get("jurisdiction"), building_type:get("building_type"), notes:get("notes").trim()||null };
+  NUM_FIELDS.forEach(n=> p[n]=num(get(n)));
+  return p;
+}
+
+document.getElementById("loadSample").addEventListener("click", ()=>{
+  const f = document.getElementById("projectForm");
+  Object.entries(SAMPLE).forEach(([k,v])=>{ if (f.elements[k]) f.elements[k].value = v==null?"":v; });
+});
+document.getElementById("clearForm").addEventListener("click", ()=>{
+  document.getElementById("projectForm").reset();
+});
+
+document.getElementById("projectForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const errBox = document.getElementById("errorBox"); errBox.innerHTML="";
+  const p = readForm();
+  const J = JURISDICTIONS[p.jurisdiction] || JURISDICTIONS.maple_grove;
+
+  const result = analyze(p, J);
+  result.ai_explanation = fallbackExplanation(result);
+  result.ai_source = "fallback";
+  renderResults(result);
+
+  const key = document.getElementById("apiKey").value.trim();
+  if (key) {
+    const badge = document.getElementById("aiBadge");
+    const aiBody = document.getElementById("aiBody");
+    if (badge) badge.textContent="Asking Claude…";
+    try {
+      const text = await claudeExplanation(result, key);
+      if (text){ result.ai_explanation=text; result.ai_source="claude"; LAST=result;
+        aiBody.innerHTML = renderMarkdown(text);
+        badge.textContent="Generated by Claude"; badge.className="badge badge-claude"; }
+    } catch(err){
+      badge.textContent="Offline engine"; badge.className="badge badge-fallback";
+      errBox.innerHTML = `<div class="card error no-print">⚠ Claude request failed — showing the offline explanation instead. (${esc(err.message)})</div>`;
+    }
+  }
+});
+
+loadHistory();
+</script>
+</body>
+</html>
