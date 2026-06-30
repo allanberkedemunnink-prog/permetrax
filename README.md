@@ -98,6 +98,10 @@ max_height_ft: {
 Add a new jurisdiction object, fill in the numeric limits and citations, and the engine,
 scoring, site plan, and explanations pick it up automatically. No logic changes required.
 
+📖 **Full walkthrough: [ADAPTING.md](ADAPTING.md)** — the rule-key reference, how to wire
+clickable + self-highlighting citations, scoring knobs, and a step-by-step for adding a real
+jurisdiction.
+
 ## Tech
 
 Vanilla HTML / CSS / JavaScript. Zero dependencies, no build step. Deterministic rule

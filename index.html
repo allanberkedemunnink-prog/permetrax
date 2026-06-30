@@ -351,25 +351,25 @@ const JURISDICTIONS = {
     rules:{
       max_height_ft:{value:30,severity:"high",label:"Maximum building height",
         why:"Height limits protect neighbors' light, air, privacy, and views in the single-family zone.",
-        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(b)",url:"https://ecode360.com/42654131#42654142"}},
+        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(b)",url:"https://ecode360.com/42654131#42654142",quote:"No building or structure shall exceed a height of 30 feet"}},
       max_floors:{value:2,severity:"medium",label:"Maximum number of stories",
         why:"A two-story cap preserves the low-rise character of the R-1 zone.",
-        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(c)",url:"https://ecode360.com/42654131#42654143"}},
+        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(c)",url:"https://ecode360.com/42654131#42654143",quote:"No building shall exceed two stories"}},
       max_far:{value:0.65,severity:"medium",label:"Maximum floor-area ratio (FAR)",
         why:"FAR caps total floor area relative to lot size, limiting bulk (FAR bonuses up to 0.80 may apply but are not modeled here).",
-        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(d)",url:"https://ecode360.com/42654131#42654144",
+        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(d)",url:"https://ecode360.com/42654131#42654144",quote:"residential use shall not exceed 0.65",
           note:"Base FAR 0.65. Design-element bonuses can raise the cap to 0.80 — bonuses are not modeled here."}},
       setback_front_ft:{value:20,severity:"high",label:"Minimum front-yard setback",
         why:"Front setbacks maintain a consistent streetscape and sight lines.",
-        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(e)(1)",url:"https://ecode360.com/42654131#42654147",
+        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(e)(1)",url:"https://ecode360.com/42654131#42654147",quote:"at no point shall the setback be less than 20 feet",
           note:"Absolute minimum (20 ft). The AVERAGE front setback must also be ≥ the lesser of 25% of lot depth or 25 ft — averaging is not modeled here."}},
       setback_side_ft:{value:5,severity:"medium",label:"Minimum side-yard setback",
         why:"Side setbacks provide light, air, and fire access between homes.",
-        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(e)",url:"https://ecode360.com/42654131#42654146",
+        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(e)",url:"https://ecode360.com/42654131#42654146",quote:"minimum side setback of five feet the full length of the lot",
           note:"Minimum 5 ft full length of lot; narrower allowances exist for legal lots under 50 ft wide."}},
       setback_rear_ft:{value:15,severity:"medium",label:"Minimum rear-yard setback",
         why:"Rear yards protect private open space, drainage, and privacy.",
-        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(e)",url:"https://ecode360.com/42654131#42654146",
+        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(e)",url:"https://ecode360.com/42654131#42654146",quote:"at no point shall the yard be less than 15 feet",
           note:"Absolute minimum (15 ft). The rear yard must also AVERAGE ≥ 20% of lot depth — averaging is not modeled here."}}
     }
   },
@@ -694,7 +694,7 @@ function fallbackExplanation(a) {
     L.push("\n**Sources**");
     const seen = new Set();
     cited.forEach(x => { const c = rules[x.rule].citation; if (!seen.has(c.section)) { seen.add(c.section);
-      L.push(`- ${rules[x.rule].label}: ${c.code} ${c.section} — ${c.url}`); } });
+      L.push(`- ${rules[x.rule].label}: ${c.code} ${c.section} — ${citeHref(c)}`); } });
   }
   return L.join("\n");
 }
@@ -760,13 +760,22 @@ function prettyKey(k){
   return k.replace(/_/g," ").replace(/\bsqft\b/g,"(sqft)").replace(/\bft\b/g,"(ft)").replace(/^\w/,c=>c.toUpperCase());
 }
 
+// Build a deep link that ALSO highlights the exact text, using the browser's
+// text-fragment feature (#:~:text=). Appended after the section anchor so that
+// browsers without text-fragment support still land on the right section.
+function citeHref(c){
+  if (!c) return "#";
+  return c.quote ? `${c.url}:~:text=${encodeURIComponent(c.quote)}` : c.url;
+}
+
 function citationHTML(ruleKey, J){
   const rule = J && J.rules ? J.rules[ruleKey] : null;
   if (!rule) return "";
   const c = rule.citation;
   if (!c) return `<div class="cite-sample">⚠ Sample dataset — illustrative rule, no official source.</div>`;
+  const tip = c.quote ? `Opens the code and highlights: “${c.quote}”` : "Opens the code at this section";
   return `<div class="cite">
-      <a class="cite-link" href="${esc(c.url)}" target="_blank" rel="noopener">📄 ${esc(c.code)} ${esc(c.section)} <span class="ext">↗</span></a>
+      <a class="cite-link" href="${esc(citeHref(c))}" target="_blank" rel="noopener" title="${esc(tip)}">📄 ${esc(c.code)} ${esc(c.section)} <span class="ext">↗</span></a>
       ${c.note ? `<div class="cite-note">${esc(c.note)}</div>` : ""}
     </div>`;
 }
@@ -828,7 +837,7 @@ function renderResults(result){
         <span class="muted"> · dataset ${esc(rs.dataset_version)}</span>
         <span class="src-badge ${rs.source_type==="official"?"src-official":"src-sample"}">${rs.source_type==="official"?"✓ Official code · cited":"Sample data"}</span></div>
       ${rs.source_type==="official"
-        ? `<div class="src-line">Source: <a href="${esc(rs.code_url)}" target="_blank" rel="noopener">${esc(rs.code_name)} ↗</a> — each check below links to its exact code section.</div>`
+        ? `<div class="src-line">Source: <a href="${esc(rs.code_url)}" target="_blank" rel="noopener">${esc(rs.code_name)} ↗</a> — each check below links to (and highlights) the exact code text.</div>`
         : `<div class="src-line cite-sample">Fictional sample dataset — citations are illustrative only; there is no official source to link to.</div>`}
       <p class="disclaimer">${esc(rs.disclaimer)}</p>
     </div>
