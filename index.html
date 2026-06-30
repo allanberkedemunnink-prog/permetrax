@@ -546,9 +546,18 @@ function analyze(p, J) {
         compliant.push({ rule:"max_impervious_percent", message:`Impervious coverage ${r1(impPct)}%${noteMissing} is within the ${rule.value}% maximum.` });
     }
   } else {
-    const lotRules = ["lot coverage","FAR","minimum lot area","minimum lot width"];
-    if (rules.max_impervious_percent) lotRules.push("impervious coverage");
-    warnings.push({ rule:"lot_dimensions", message:`Lot width/depth not provided — ${lotRules.join(", ")} could not be evaluated. Add lot dimensions for a complete check and site plan.` });
+    const lotRuleNames = {
+      lot_coverage_max_percent:"lot coverage", max_far:"FAR",
+      min_lot_area_sqft:"minimum lot area", min_lot_width_ft:"minimum lot width",
+      max_impervious_percent:"impervious coverage"
+    };
+    const lotRules = Object.keys(lotRuleNames).filter(k => rules[k]).map(k => lotRuleNames[k]);
+    if (lotRules.length) {
+      const list = lotRules.length === 1 ? lotRules[0] : lotRules.slice(0,-1).join(", ") + " and " + lotRules.slice(-1);
+      warnings.push({ rule:"lot_dimensions", message:`Lot width/depth not provided — ${list} could not be evaluated. Add lot dimensions for a complete check and site plan.` });
+    } else {
+      warnings.push({ rule:"lot_dimensions", message:`Lot width/depth not provided — add them to generate the site plan.` });
+    }
   }
 
   if (rules.min_parking_spaces) {
@@ -581,8 +590,9 @@ function analyze(p, J) {
 }
 
 function likelihood(score, violations) {
-  const hasHigh = violations.some(v => v.severity === "high");
-  if (score >= 85 && !hasHigh) return "Likely to pass an initial zoning pre-screen";
+  // Top band requires NO violations of any kind — a real violation should never read
+  // as "likely to pass," even a single medium one.
+  if (score >= 85 && violations.length === 0) return "Likely to pass an initial zoning pre-screen";
   if (score >= 65) return "Borderline — revisions recommended before submitting";
   if (score >= 40) return "Significant issues — likely to be rejected as drawn";
   return "Unlikely to pass — major redesign needed";
