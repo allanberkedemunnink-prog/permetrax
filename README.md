@@ -1,9 +1,10 @@
 # Permetrax
 
-**An educational zoning & building-code pre-check for residential projects.**
-Describe a building concept and Permetrax tells you whether it likely complies with a
-jurisdiction's zoning rules — flagging violations, drawing a to-scale site plan, scoring
-permit likelihood, and **citing the exact code section behind every check.**
+**An educational zoning & building-code pre-check for residential, commercial, and
+accessory building projects.** Describe a building concept and Permetrax tells you whether
+it likely complies with a jurisdiction's zoning rules — flagging violations, drawing a
+to-scale site plan, scoring permit likelihood, and **citing the exact code section behind
+every check.**
 
 [![Live demo](https://img.shields.io/badge/live%20demo-permetrax.netlify.app-1d4ed8)](https://permetrax.netlify.app)
 [![License: MIT](https://img.shields.io/badge/license-MIT-16a34a)](LICENSE)
@@ -77,6 +78,19 @@ language model "decide" it would be neither reproducible nor explainable.
 
 Each city models only the rules its code actually defines and honestly flags what it *doesn't*
 model (e.g. LA's encroachment-plane height, Chicago's contextual setbacks).
+
+### Building types
+Every official city supports **three use types**, each with its own zone, rules, and
+citations — the building-type menu updates per city so there are no dead ends:
+
+| Type | Austin | Los Angeles | Chicago | Redondo Beach |
+|---|---|---|---|---|
+| Residential | SF-3 | R1 | RS-3 | R-1 |
+| Commercial | GR | C2 (HD1) | B3-2 | C-2 |
+| Small structure (accessory) | Accessory | Accessory | Accessory | Accessory |
+
+Big-city commercial bulk is often governed by overlays/height-districts, so those rule sets
+are intentionally leaner (FAR-centric) with the nuance noted — real, not faked.
 
 ## Run it
 

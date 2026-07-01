@@ -377,6 +377,38 @@ const JURISDICTIONS = {
         citation:{code:"Austin LDC",section:"§ 25-2-492",url:"https://library.municode.com/tx/austin/codes/land_development_code"}},
       min_lot_width_ft:{value:50,severity:"medium",label:"Minimum lot width",why:"Minimum frontage ensures adequate street access and spacing.",
         citation:{code:"Austin LDC",section:"§ 25-2-492",url:"https://library.municode.com/tx/austin/codes/land_development_code"}}
+    },
+    types:{
+      commercial:{
+        zone:"GR Community Commercial",
+        code_name:"Austin Land Development Code § 25-2-492 (GR district)",
+        code_url:"https://library.municode.com/tx/austin/codes/land_development_code",
+        disclaimer:"Austin GR (Community Commercial) standards from the Land Development Code § 25-2-492, via Municode (retrieved July 2026). Simplified — base height (60 ft) scales down with lower impervious cover, and interior side/rear setbacks are 0 except under 'compatibility' near residential (not modeled). Municode is dynamic; citations open the LDC — search § 25-2-492. Not legal advice.",
+        rules:{
+          max_height_ft:{value:60,severity:"high",label:"Maximum building height",why:"Height limits keep commercial buildings in scale with the corridor.",
+            citation:{code:"Austin LDC",section:"§ 25-2-492",url:"https://library.municode.com/tx/austin/codes/land_development_code",note:"Base 60 ft; reduced where site impervious cover is lower."}},
+          max_far:{value:1.0,severity:"medium",label:"Maximum floor-area ratio (FAR)",why:"FAR caps total floor area relative to lot size.",
+            citation:{code:"Austin LDC",section:"§ 25-2-492",url:"https://library.municode.com/tx/austin/codes/land_development_code",note:"1:1 gross floor-area ratio."}},
+          max_impervious_percent:{value:90,severity:"medium",label:"Maximum impervious coverage",why:"Impervious limits protect Austin's watersheds.",
+            citation:{code:"Austin LDC",section:"§ 25-2-492",url:"https://library.municode.com/tx/austin/codes/land_development_code"}},
+          setback_front_ft:{value:25,severity:"high",label:"Minimum front-yard setback",why:"Front setbacks maintain the streetscape.",
+            citation:{code:"Austin LDC",section:"§ 25-2-492",url:"https://library.municode.com/tx/austin/codes/land_development_code",note:"Interior side/rear setbacks are 0 unless adjacent to residential (compatibility) — not modeled."}}
+        }
+      },
+      small_structure:{
+        zone:"Accessory structure (SF-3)",
+        code_name:"Austin Land Development Code § 25-2-492 (accessory)",
+        code_url:"https://library.municode.com/tx/austin/codes/land_development_code",
+        disclaimer:"Representative accessory-building standards for Austin SF-3 (LDC § 25-2, via Municode, July 2026). Simplified — sheds/detached garages are modeled here; ADUs under the HOME code may be taller. Confirm § 25-2-492. Not legal advice.",
+        rules:{
+          max_height_ft:{value:15,severity:"medium",label:"Maximum accessory-structure height",why:"Height limits keep accessory buildings subordinate to the main house.",
+            citation:{code:"Austin LDC",section:"§ 25-2-492",url:"https://library.municode.com/tx/austin/codes/land_development_code",note:"Representative accessory-building limit; ADUs may be taller under the HOME code."}},
+          setback_side_ft:{value:5,severity:"medium",label:"Minimum side setback",why:"Setbacks provide separation from neighbors.",
+            citation:{code:"Austin LDC",section:"§ 25-2-492",url:"https://library.municode.com/tx/austin/codes/land_development_code"}},
+          setback_rear_ft:{value:5,severity:"medium",label:"Minimum rear setback",why:"Setbacks protect the rear yard and drainage.",
+            citation:{code:"Austin LDC",section:"§ 25-2-492",url:"https://library.municode.com/tx/austin/codes/land_development_code"}}
+        }
+      }
     }
   },
   los_angeles: {
@@ -399,6 +431,32 @@ const JURISDICTIONS = {
         citation:{code:"L.A. Muni. Code",section:"§ 12.08 C.4",url:"https://codelibrary.amlegal.com/codes/los_angeles/latest/lapz/0-0-0-2052",quote:"rear yard of not less than 15 feet"}},
       max_far:{value:0.45,severity:"medium",label:"Maximum residential floor-area ratio (RFA)",why:"RFA caps total floor area relative to lot size, limiting mansionization.",
         citation:{code:"L.A. Muni. Code",section:"§ 12.21.1 (RFA)",url:"https://codelibrary.amlegal.com/codes/los_angeles/latest/lapz/0-0-0-2052",note:"Base Residential Floor Area 0.45 per § 12.21.1; bonuses/exemptions not modeled."}}
+    },
+    types:{
+      commercial:{
+        zone:"C2 Commercial (Height District 1)",
+        code_name:"Los Angeles Municipal Code § 12.14 / § 12.21.1 (C2-1)",
+        code_url:"https://codelibrary.amlegal.com/codes/los_angeles/latest/lapz/0-0-0-5183",
+        disclaimer:"Los Angeles C2 commercial in Height District 1 (C2-1). L.A. governs commercial bulk through HEIGHT DISTRICTS, not the base zone — so only the Height-District-1 floor-area ratio (1.5:1) is modeled here; there is no simple foot height limit (transitional height near residential applies). From LAMC § 12.14 / § 12.21.1 (American Legal, July 2026). Not legal advice.",
+        rules:{
+          max_far:{value:1.5,severity:"high",label:"Maximum floor-area ratio (FAR)",why:"In L.A. commercial zones, FAR (set by the height district) is the primary bulk control.",
+            citation:{code:"L.A. Muni. Code",section:"§ 12.21.1 (Height District 1)",url:"https://codelibrary.amlegal.com/codes/los_angeles/latest/lapz/0-0-0-5183",note:"C2-1 FAR 1.5:1. Building height is governed by the height district and transitional planes near residential — not modeled."}}
+        }
+      },
+      small_structure:{
+        zone:"Accessory building (R zones)",
+        code_name:"Los Angeles Municipal Code § 12.21",
+        code_url:"https://codelibrary.amlegal.com/codes/los_angeles/latest/lapz/0-0-0-5183",
+        disclaimer:"Representative accessory-building standards for L.A. R zones (LAMC § 12.21, American Legal, July 2026). Simplified — detached accessory buildings are limited to one story and observe rear/side placement rules; ~15 ft is a representative height. Confirm § 12.21. Not legal advice.",
+        rules:{
+          max_height_ft:{value:15,severity:"medium",label:"Maximum accessory-building height",why:"Keeps detached accessory buildings subordinate to the main dwelling.",
+            citation:{code:"L.A. Muni. Code",section:"§ 12.21",url:"https://codelibrary.amlegal.com/codes/los_angeles/latest/lapz/0-0-0-5183",note:"Representative — detached accessory buildings are limited to one story."}},
+          setback_rear_ft:{value:5,severity:"medium",label:"Minimum rear setback",why:"Accessory buildings may sit within the rear yard but must keep a minimum gap.",
+            citation:{code:"L.A. Muni. Code",section:"§ 12.21",url:"https://codelibrary.amlegal.com/codes/los_angeles/latest/lapz/0-0-0-5183"}},
+          setback_side_ft:{value:10,severity:"medium",label:"Minimum side setback",why:"Side setbacks provide light, air, and fire separation.",
+            citation:{code:"L.A. Muni. Code",section:"§ 12.21",url:"https://codelibrary.amlegal.com/codes/los_angeles/latest/lapz/0-0-0-5183"}}
+        }
+      }
     }
   },
   chicago: {
@@ -415,6 +473,28 @@ const JURISDICTIONS = {
         citation:{code:"Chicago Zoning Ord.",section:"§ 17-2-0300",url:"https://codelibrary.amlegal.com/codes/chicago/latest/chicagozoning_il/0-0-0-48935",note:"RS-3 maximum floor-area ratio 0.90."}},
       max_height_ft:{value:30,severity:"high",label:"Maximum building height",why:"Height limits work with FAR to control building bulk.",
         citation:{code:"Chicago Zoning Ord.",section:"§ 17-2-0300",url:"https://codelibrary.amlegal.com/codes/chicago/latest/chicagozoning_il/0-0-0-48935",note:"RS-3 maximum building height 30 ft."}}
+    },
+    types:{
+      commercial:{
+        zone:"B3-2 Community Shopping",
+        code_name:"Chicago Zoning Ordinance § 17-3-0400 (B3-2)",
+        code_url:"https://codelibrary.amlegal.com/codes/chicago/latest/chicagozoning_il/0-0-0-49197",
+        disclaimer:"Chicago B3-2 (Community Shopping) from the Zoning Ordinance § 17-3-0400 (American Legal, July 2026). Simplified — Chicago governs commercial bulk mainly through FAR (2.2); building height is frontage-based (§ 17-3-0408) and setbacks are contextual (none unless bordering an R lot), so those are not scored here. Not legal advice.",
+        rules:{
+          max_far:{value:2.2,severity:"high",label:"Maximum floor-area ratio (FAR)",why:"FAR is the primary bulk control in Chicago's business districts.",
+            citation:{code:"Chicago Zoning Ord.",section:"§ 17-3-0400",url:"https://codelibrary.amlegal.com/codes/chicago/latest/chicagozoning_il/0-0-0-49197",note:"B3-2 FAR 2.2. Height is frontage-based (§ 17-3-0408); setbacks are contextual — not modeled."}}
+        }
+      },
+      small_structure:{
+        zone:"Accessory structure",
+        code_name:"Chicago Zoning Ordinance § 17-9-0200",
+        code_url:"https://codelibrary.amlegal.com/codes/chicago/latest/chicagozoning_il/0-0-0-50598",
+        disclaimer:"Chicago accessory buildings/structures from the Zoning Ordinance § 17-9-0200 (American Legal, July 2026). Simplified — an accessory building/structure in a required rear setback may not exceed 15 ft (coach houses excepted). Not legal advice.",
+        rules:{
+          max_height_ft:{value:15,severity:"high",label:"Maximum accessory-structure height",why:"Keeps detached garages and sheds subordinate to the principal building.",
+            citation:{code:"Chicago Zoning Ord.",section:"§ 17-9-0200",url:"https://codelibrary.amlegal.com/codes/chicago/latest/chicagozoning_il/0-0-0-50598",quote:"15 feet in height",note:"Applies to an accessory building/structure in a required rear setback (coach houses excepted)."}}
+        }
+      }
     }
   },
   redondo_beach: {
@@ -447,6 +527,36 @@ const JURISDICTIONS = {
         why:"Rear yards protect private open space, drainage, and privacy.",
         citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(e)",url:"https://ecode360.com/42654131#42654146",quote:"at no point shall the yard be less than 15 feet",
           note:"Absolute minimum (15 ft). The rear yard must also AVERAGE ≥ 20% of lot depth — averaging is not modeled here."}}
+    },
+    types:{
+      commercial:{
+        zone:"C-2 Commercial",
+        code_name:"Redondo Beach Municipal Code § 10-2.622 (C-2 zone)",
+        code_url:"https://ecode360.com/42654386",
+        disclaimer:"Redondo Beach C-2 commercial standards from Municipal Code § 10-2.622 (eCode360, retrieved July 2026). Simplified — additional standards apply where a C-2 lot is contiguous to a residential zone. Not legal advice.",
+        rules:{
+          max_far:{value:0.5,severity:"high",label:"Maximum floor-area ratio (FAR)",why:"FAR caps commercial floor area relative to lot size.",
+            citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.622(a)",url:"https://ecode360.com/42654386",quote:"floor area ratio (F.A.R.) of all buildings on a lot shall not exceed 0.5"}},
+          max_height_ft:{value:30,severity:"high",label:"Maximum building height",why:"Height limits keep commercial buildings in scale with the district.",
+            citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.622(b)",url:"https://ecode360.com/42654386"}},
+          setback_front_ft:{value:5,severity:"medium",label:"Minimum front setback",why:"Front setbacks maintain the streetscape.",
+            citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.622",url:"https://ecode360.com/42654386"}},
+          setback_side_ft:{value:10,severity:"medium",label:"Minimum side setback",why:"Side setbacks provide separation, especially near residential.",
+            citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.622",url:"https://ecode360.com/42654386"}},
+          setback_rear_ft:{value:20,severity:"medium",label:"Minimum rear setback",why:"Rear setbacks protect abutting properties.",
+            citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.622",url:"https://ecode360.com/42654386"}}
+        }
+      },
+      small_structure:{
+        zone:"Accessory structure (residential)",
+        code_name:"Redondo Beach Municipal Code § 10-2.1500",
+        code_url:"https://ecode360.com/42655178",
+        disclaimer:"Redondo Beach accessory-structure standards from Municipal Code § 10-2.1500 (eCode360, retrieved July 2026). Simplified — perimeter walls are limited to 10 ft and setback exceptions apply. Not legal advice.",
+        rules:{
+          max_height_ft:{value:15,severity:"high",label:"Maximum accessory-structure height",why:"Keeps accessory structures subordinate to the main dwelling.",
+            citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.1500",url:"https://ecode360.com/42655178",quote:"No accessory structure shall exceed 15 feet in height"}}
+        }
+      }
     }
   },
   maple_grove: {
@@ -531,8 +641,20 @@ function fixFor(ruleKey, rules) {
 /* ============================================================
    DETERMINISTIC RULE ENGINE  (no AI — pure logic)
    ============================================================ */
+function activeType(J, bt) {
+  if (bt && J.types && J.types[bt]) return J.types[bt];
+  return { zone:J.zone, code_name:J.code_name, code_url:J.code_url, disclaimer:J.disclaimer, rules:J.rules };
+}
+function availableTypes(J) {
+  return ["residential"].concat(J.types ? Object.keys(J.types) : []);
+}
+
 function analyze(p, J) {
-  const rules = J.rules;
+  const T = activeType(J, p.building_type);
+  const RS = { municipality:J.municipality, state:J.state, source_type:J.source_type,
+    dataset_version:J.dataset_version, zone:T.zone, code_name:T.code_name, code_url:T.code_url,
+    disclaimer:T.disclaimer, rules:T.rules, building_type:p.building_type };
+  const rules = T.rules;
   const violations = [], warnings = [], compliant = [];
   const footprint = p.width_ft * p.length_ft;
   const totalFloorArea = footprint * p.floors;
@@ -647,8 +769,6 @@ function analyze(p, J) {
       compliant.push({ rule:"min_parking_spaces", message:`${p.parking_spaces} off-street parking spaces meet the ${rule.value}-space minimum.` });
   }
 
-  if (p.building_type && p.building_type !== "residential")
-    warnings.unshift({ rule:"building_type_scope", message:`Permetrax only models RESIDENTIAL zoning. Results for '${p.building_type}' use residential rules as a rough proxy and should not be relied on.` });
   if (p.notes && p.notes.trim())
     warnings.push({ rule:"free_text_notes", message:"Your notes may describe conditions (variances, easements, overlays, flood zone, corner lot) Permetrax does not model. They were noted but not scored." });
 
@@ -668,8 +788,8 @@ function analyze(p, J) {
     violations, warnings, compliant_checks: compliant,
     input_completeness: { evaluated: evaluatedRules, total: totalRules,
       percent: totalRules ? Math.round(evaluatedRules / totalRules * 100) : 100 },
-    project_summary: summary(p, J, footprint, totalFloorArea, hasLot, lotArea),
-    ruleset: J, _input: p
+    project_summary: summary(p, RS, footprint, totalFloorArea, hasLot, lotArea),
+    ruleset: RS, _input: p
   };
 }
 
@@ -1033,11 +1153,20 @@ const SAMPLE = {
 const NUM_FIELDS = ["height_ft","width_ft","length_ft","floors","lot_width_ft","lot_depth_ft",
   "front_setback_ft","side_setback_ft","rear_setback_ft","parking_spaces","other_impervious_sqft"];
 
-(function(){
-  const sel = document.getElementById("jurisdiction");
-  sel.innerHTML = Object.values(JURISDICTIONS)
-    .map(j=>`<option value="${j.id}">${j.source_type==="official"?"★ ":""}${esc(j.municipality)}, ${j.state} — ${esc(j.zone)} ${j.source_type==="official"?"(real code · cited)":"(sample)"}</option>`).join("");
-})();
+const TYPE_LABELS = { residential:"Residential", commercial:"Commercial", small_structure:"Small structure" };
+const jSel = document.getElementById("jurisdiction");
+const btSel = document.querySelector('select[name="building_type"]');
+jSel.innerHTML = Object.values(JURISDICTIONS)
+  .map(j=>`<option value="${j.id}">${j.source_type==="official"?"★ ":""}${esc(j.municipality)}, ${j.state} ${j.source_type==="official"?"(real code · cited)":"(sample)"}</option>`).join("");
+function populateBuildingTypes(){
+  const J = JURISDICTIONS[jSel.value] || JURISDICTIONS.austin;
+  btSel.innerHTML = availableTypes(J).map(k=>{
+    const t = activeType(J, k);
+    return `<option value="${k}">${TYPE_LABELS[k]||k} — ${esc(t.zone)}</option>`;
+  }).join("");
+}
+jSel.addEventListener("change", populateBuildingTypes);
+populateBuildingTypes();
 
 function readForm(){
   const f = document.getElementById("projectForm");
@@ -1050,17 +1179,20 @@ function readForm(){
 
 document.getElementById("loadSample").addEventListener("click", ()=>{
   const f = document.getElementById("projectForm");
+  f.elements["jurisdiction"].value = SAMPLE.jurisdiction;
+  populateBuildingTypes();
   Object.entries(SAMPLE).forEach(([k,v])=>{ if (f.elements[k]) f.elements[k].value = v==null?"":v; });
 });
 document.getElementById("clearForm").addEventListener("click", ()=>{
   document.getElementById("projectForm").reset();
+  populateBuildingTypes();
 });
 
 document.getElementById("projectForm").addEventListener("submit", async (e)=>{
   e.preventDefault();
   const errBox = document.getElementById("errorBox"); errBox.innerHTML="";
   const p = readForm();
-  const J = JURISDICTIONS[p.jurisdiction] || JURISDICTIONS.maple_grove;
+  const J = JURISDICTIONS[p.jurisdiction] || JURISDICTIONS.austin;
 
   const result = analyze(p, J);
   result.ai_explanation = fallbackExplanation(result);
