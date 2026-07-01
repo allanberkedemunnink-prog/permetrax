@@ -351,6 +351,72 @@
 const DISCLAIMER = "This is a SIMPLIFIED, EDUCATIONAL sample dataset modeled on typical residential zoning. It is NOT the actual code of any real jurisdiction and must NOT be used for legal permit decisions. Always verify against the official municipal code and a licensed professional.";
 
 const JURISDICTIONS = {
+  austin: {
+    id:"austin", municipality:"City of Austin", state:"TX",
+    zone:"SF-3 Family Residence", dataset_version:"official · Municode (retrieved Jul 2026)",
+    source_type:"official",
+    code_name:"Austin Land Development Code § 25-2-492 (SF-3 Site Development Regulations)",
+    code_url:"https://library.municode.com/tx/austin/codes/land_development_code",
+    disclaimer:"Rules transcribed from the Austin Land Development Code § 25-2-492 (and Subchapter F for FAR), via Municode, retrieved July 2026. Simplified — 'McMansion' Subchapter F articulation, gable/attic exemptions, and setback exceptions are not fully modeled. Austin's code viewer (Municode) is dynamic and doesn't support in-page text highlighting, so citations open the Land Development Code — search § 25-2-492. Not legal advice.",
+    rules:{
+      max_height_ft:{value:35,severity:"high",label:"Maximum building height",why:"Height limits keep new homes in scale with the single-family neighborhood.",
+        citation:{code:"Austin LDC",section:"§ 25-2-492",url:"https://library.municode.com/tx/austin/codes/land_development_code",note:"Municode viewer opens the LDC — search § 25-2-492 (SF-3 table)."}},
+      setback_front_ft:{value:25,severity:"high",label:"Minimum front-yard setback",why:"Front setbacks maintain Austin's consistent residential streetscape.",
+        citation:{code:"Austin LDC",section:"§ 25-2-492",url:"https://library.municode.com/tx/austin/codes/land_development_code"}},
+      setback_side_ft:{value:5,severity:"medium",label:"Minimum side-yard setback",why:"Side setbacks provide light, air, and fire separation.",
+        citation:{code:"Austin LDC",section:"§ 25-2-492",url:"https://library.municode.com/tx/austin/codes/land_development_code"}},
+      setback_rear_ft:{value:10,severity:"medium",label:"Minimum rear-yard setback",why:"Rear setbacks protect backyard open space.",
+        citation:{code:"Austin LDC",section:"§ 25-2-492",url:"https://library.municode.com/tx/austin/codes/land_development_code"}},
+      lot_coverage_max_percent:{value:40,severity:"high",label:"Maximum building coverage",why:"Building-coverage limits control bulk and preserve yard area.",
+        citation:{code:"Austin LDC",section:"§ 25-2-492",url:"https://library.municode.com/tx/austin/codes/land_development_code"}},
+      max_impervious_percent:{value:45,severity:"medium",label:"Maximum impervious coverage",why:"Impervious limits protect Austin's watersheds and reduce flooding.",
+        citation:{code:"Austin LDC",section:"§ 25-2-492",url:"https://library.municode.com/tx/austin/codes/land_development_code"}},
+      max_far:{value:0.4,severity:"medium",label:"Maximum floor-area ratio (FAR)",why:"FAR caps total floor area relative to lot size (the 'McMansion' rule).",
+        citation:{code:"Austin LDC",section:"Subchapter F",url:"https://library.municode.com/tx/austin/codes/land_development_code",note:"Base 0.40 gross FAR under Subchapter F; articulation/attic exemptions not modeled."}},
+      min_lot_area_sqft:{value:5750,severity:"high",label:"Minimum lot area",why:"Minimum lot area sets the base density of the SF-3 district.",
+        citation:{code:"Austin LDC",section:"§ 25-2-492",url:"https://library.municode.com/tx/austin/codes/land_development_code"}},
+      min_lot_width_ft:{value:50,severity:"medium",label:"Minimum lot width",why:"Minimum frontage ensures adequate street access and spacing.",
+        citation:{code:"Austin LDC",section:"§ 25-2-492",url:"https://library.municode.com/tx/austin/codes/land_development_code"}}
+    }
+  },
+  los_angeles: {
+    id:"los_angeles", municipality:"City of Los Angeles", state:"CA",
+    zone:"R1 One-Family Residential", dataset_version:"official · American Legal (retrieved Jul 2026)",
+    source_type:"official",
+    code_name:"Los Angeles Municipal Code § 12.08 (R1 One-Family Zone)",
+    code_url:"https://codelibrary.amlegal.com/codes/los_angeles/latest/lapz/0-0-0-2052",
+    disclaimer:"Rules transcribed from the Los Angeles Municipal Code § 12.08 (R1 Zone) and the City's CP-7150 Zoning Code Summary, retrieved July 2026. Simplified — R1 building HEIGHT is governed by an 'encroachment plane' and roof-slope table (not a single number), so it is NOT scored here. Front-yard depth actually varies with lot depth; side yards increase for tall or long walls. Residential Floor Area (RFA) is per § 12.21.1. Confirm against the official code. Not legal advice.",
+    rules:{
+      min_lot_area_sqft:{value:5000,severity:"high",label:"Minimum lot area",why:"Minimum lot area sets the base density of the R1 zone.",
+        citation:{code:"L.A. Muni. Code",section:"§ 12.08 C.1",url:"https://codelibrary.amlegal.com/codes/los_angeles/latest/lapz/0-0-0-2052"}},
+      min_lot_width_ft:{value:50,severity:"medium",label:"Minimum lot width",why:"Minimum frontage ensures adequate access and spacing.",
+        citation:{code:"L.A. Muni. Code",section:"§ 12.08 C.1",url:"https://codelibrary.amlegal.com/codes/los_angeles/latest/lapz/0-0-0-2052"}},
+      setback_front_ft:{value:15,severity:"high",label:"Minimum front-yard setback",why:"Front setbacks maintain the streetscape and sight lines.",
+        citation:{code:"L.A. Muni. Code",section:"§ 12.08 C.2",url:"https://codelibrary.amlegal.com/codes/los_angeles/latest/lapz/0-0-0-2052",note:"L.A. requires 20% of lot depth up to 20 ft, and not less than 15 ft; modeled at the 15 ft floor."}},
+      setback_side_ft:{value:5,severity:"medium",label:"Minimum side-yard setback",why:"Side setbacks provide light, air, and fire separation.",
+        citation:{code:"L.A. Muni. Code",section:"§ 12.08 C.3",url:"https://codelibrary.amlegal.com/codes/los_angeles/latest/lapz/0-0-0-2052",note:"5 ft (reduced to 10% of width, min 3 ft, on lots under 50 ft wide); tall/long walls need additional offset — not modeled."}},
+      setback_rear_ft:{value:15,severity:"medium",label:"Minimum rear-yard setback",why:"Rear yards protect private open space and privacy.",
+        citation:{code:"L.A. Muni. Code",section:"§ 12.08 C.4",url:"https://codelibrary.amlegal.com/codes/los_angeles/latest/lapz/0-0-0-2052",quote:"rear yard of not less than 15 feet"}},
+      max_far:{value:0.45,severity:"medium",label:"Maximum residential floor-area ratio (RFA)",why:"RFA caps total floor area relative to lot size, limiting mansionization.",
+        citation:{code:"L.A. Muni. Code",section:"§ 12.21.1 (RFA)",url:"https://codelibrary.amlegal.com/codes/los_angeles/latest/lapz/0-0-0-2052",note:"Base Residential Floor Area 0.45 per § 12.21.1; bonuses/exemptions not modeled."}}
+    }
+  },
+  chicago: {
+    id:"chicago", municipality:"City of Chicago", state:"IL",
+    zone:"RS-3 Residential Single-Unit", dataset_version:"official · American Legal (retrieved Jul 2026)",
+    source_type:"official",
+    code_name:"Chicago Zoning Ordinance § 17-2-0300 (RS-3 Bulk & Density Standards)",
+    code_url:"https://codelibrary.amlegal.com/codes/chicago/latest/chicagozoning_il/0-0-0-48935",
+    disclaimer:"Rules transcribed from the Chicago Zoning Ordinance § 17-2-0300 (RS-3 bulk & density), via American Legal, retrieved July 2026. Simplified — RS-3 SETBACKS are contextual and NOT scored here: the front yard is the average of nearby lots, combined side setbacks must total 20% of lot width (min 2 ft each), and the rear setback is 28% of lot depth (up to 50 ft). Minimum lot area is per dwelling unit. Confirm against the official code. Not legal advice.",
+    rules:{
+      min_lot_area_sqft:{value:2500,severity:"high",label:"Minimum lot area (per unit)",why:"Minimum lot area per dwelling unit sets the density of the RS-3 district.",
+        citation:{code:"Chicago Zoning Ord.",section:"§ 17-2-0300",url:"https://codelibrary.amlegal.com/codes/chicago/latest/chicagozoning_il/0-0-0-48935",note:"2,500 sq ft minimum lot area per dwelling unit."}},
+      max_far:{value:0.9,severity:"high",label:"Maximum floor-area ratio (FAR)",why:"FAR is the primary bulk control in Chicago's RS districts.",
+        citation:{code:"Chicago Zoning Ord.",section:"§ 17-2-0300",url:"https://codelibrary.amlegal.com/codes/chicago/latest/chicagozoning_il/0-0-0-48935",note:"RS-3 maximum floor-area ratio 0.90."}},
+      max_height_ft:{value:30,severity:"high",label:"Maximum building height",why:"Height limits work with FAR to control building bulk.",
+        citation:{code:"Chicago Zoning Ord.",section:"§ 17-2-0300",url:"https://codelibrary.amlegal.com/codes/chicago/latest/chicagozoning_il/0-0-0-48935",note:"RS-3 maximum building height 30 ft."}}
+    }
+  },
   redondo_beach: {
     id:"redondo_beach", municipality:"City of Redondo Beach", state:"CA",
     zone:"R-1 Single-Family Residential", dataset_version:"official · eCode360 (retrieved Jun 2026)",
@@ -957,12 +1023,12 @@ function openSaved(id){
    FORM HANDLING
    ============================================================ */
 const SAMPLE = {
-  jurisdiction:"redondo_beach", building_type:"residential",
-  height_ft:32, width_ft:35, length_ft:45, floors:2,
-  lot_width_ft:50, lot_depth_ft:100,
-  front_setback_ft:18, side_setback_ft:6, rear_setback_ft:18,
-  parking_spaces:2, other_impervious_sqft:400,
-  notes:"Two-story addition; checking height and front setback against the real R-1 code."
+  jurisdiction:"austin", building_type:"residential",
+  height_ft:34, width_ft:40, length_ft:55, floors:2,
+  lot_width_ft:60, lot_depth_ft:110,
+  front_setback_ft:20, side_setback_ft:6, rear_setback_ft:12,
+  other_impervious_sqft:500,
+  notes:"Two-story home; checking FAR and front setback against Austin's SF-3 code."
 };
 const NUM_FIELDS = ["height_ft","width_ft","length_ft","floors","lot_width_ft","lot_depth_ft",
   "front_setback_ft","side_setback_ft","rear_setback_ft","parking_spaces","other_impervious_sqft"];

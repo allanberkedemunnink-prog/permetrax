@@ -14,7 +14,8 @@ permit likelihood, and **citing the exact code section behind every check.**
 ![Permetrax screenshot](docs/screenshot.png)
 
 > ⚠️ **Educational tool — not legal advice.** Permetrax runs against simplified rule sets
-> (one real, cited jurisdiction plus clearly-labeled fictional samples). It does not replace
+> (four real, cited jurisdictions — Austin, Los Angeles, Chicago, and Redondo Beach — plus
+> clearly-labeled fictional samples). It does not replace
 > the official municipal code or a licensed professional.
 
 ---
@@ -64,12 +65,18 @@ language model "decide" it would be neither reproducible nor explainable.
 
 ## Jurisdictions
 
-| Jurisdiction | Type | Source |
+**Four real, officially-cited jurisdictions** — plus fictional samples for teaching/extension:
+
+| Jurisdiction | Zone | Source (every rule links to the code) |
 |---|---|---|
-| ★ **City of Redondo Beach, CA** — R-1 | **Real, fully cited** | Municipal Code § 10-2.2503 (eCode360) — every rule links to its section |
-| Township of Maple Grove, NJ — R-1 | Fictional sample | Illustrative only |
-| City of Lakeside, CA — R-2 | Fictional sample | Illustrative only |
-| Town of Brookfield, TX — SF-2 | Fictional sample | Illustrative only |
+| ★ **City of Austin, TX** | SF-3 Family Residence | Land Development Code § 25-2-492 (Municode) |
+| ★ **City of Los Angeles, CA** | R1 One-Family | Municipal Code § 12.08 (American Legal) |
+| ★ **City of Chicago, IL** | RS-3 Single-Unit | Zoning Ordinance § 17-2-0300 (American Legal) |
+| ★ **City of Redondo Beach, CA** | R-1 Single-Family | Municipal Code § 10-2.2503 (eCode360) |
+| Maple Grove, NJ · Lakeside, CA · Brookfield, TX | R-1 / R-2 / SF-2 | Fictional samples (clearly labeled) |
+
+Each city models only the rules its code actually defines and honestly flags what it *doesn't*
+model (e.g. LA's encroachment-plane height, Chicago's contextual setbacks).
 
 ## Run it
 
