@@ -91,6 +91,16 @@
   .actions { display:flex; gap:10px; margin-top:16px; }
   .actions button { flex:1; margin-top:0; padding:9px 12px; font-size:14px; }
 
+  .completeness { margin-top:14px; }
+  .comp-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; }
+  .comp-label { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); }
+  .comp-pct { font-size:12px; font-weight:700; }
+  .comp-pct.ok { color:var(--green); }
+  .comp-pct.warn { color:var(--amber); }
+  .comp-bar { height:8px; background:#e2e8f0; border-radius:999px; overflow:hidden; }
+  .comp-fill { height:100%; border-radius:999px; transition:width .3s; }
+  .comp-hint { margin-top:6px; font-size:12px; color:var(--amber); line-height:1.4; }
+
   .impact { border-left:4px solid var(--red); background:var(--red-bg); }
   .impact h3 { color:#991b1b; margin-bottom:6px; }
   .impact .fix { color:#7f1d1d; font-size:14px; }
@@ -580,19 +590,30 @@ function analyze(p, J) {
   penalty += WARNING_PENALTY * warnings.length;
   const score = Math.max(0, Math.min(100, 100 - penalty));
 
+  // Completeness = how many of this jurisdiction's rules could actually be checked.
+  // Each rule yields exactly one of: violation, compliant, or "couldn't evaluate" (warning).
+  const totalRules = Object.keys(rules).length;
+  const evaluatedRules = violations.length + compliant.length;
+  const incomplete = evaluatedRules < totalRules;
+
   return {
     compliance_score: score,
-    permit_likelihood: likelihood(score, violations),
+    permit_likelihood: likelihood(score, violations, incomplete),
     violations, warnings, compliant_checks: compliant,
+    input_completeness: { evaluated: evaluatedRules, total: totalRules,
+      percent: totalRules ? Math.round(evaluatedRules / totalRules * 100) : 100 },
     project_summary: summary(p, J, footprint, totalFloorArea, hasLot, lotArea),
     ruleset: J, _input: p
   };
 }
 
-function likelihood(score, violations) {
-  // Top band requires NO violations of any kind — a real violation should never read
-  // as "likely to pass," even a single medium one.
-  if (score >= 85 && violations.length === 0) return "Likely to pass an initial zoning pre-screen";
+function likelihood(score, violations, incomplete) {
+  // A real violation should never read as "likely to pass," even a single medium one.
+  if (score >= 85 && violations.length === 0 && !incomplete)
+    return "Likely to pass an initial zoning pre-screen";
+  // No known violations, but not every rule could be checked → don't claim it passes.
+  if (violations.length === 0 && incomplete)
+    return "Incomplete check — add the missing inputs for a real estimate";
   if (score >= 65) return "Borderline — revisions recommended before submitting";
   if (score >= 40) return "Significant issues — likely to be rejected as drawn";
   return "Unlikely to pass — major redesign needed";
@@ -833,6 +854,17 @@ function renderResults(result){
           <span class="pill amber">${result.warnings.length} warnings</span>
           <span class="pill green">${result.compliant_checks.length} compliant</span>
         </div>
+        ${result.input_completeness ? (() => {
+          const c = result.input_completeness, pct = c.percent, full = pct === 100;
+          return `<div class="completeness">
+            <div class="comp-top">
+              <span class="comp-label">Input completeness</span>
+              <span class="comp-pct ${full?'ok':'warn'}">${pct}% · ${c.evaluated}/${c.total} rules checked</span>
+            </div>
+            <div class="comp-bar"><div class="comp-fill" style="width:${pct}%;background:${full?'var(--green)':'var(--amber)'}"></div></div>
+            ${full ? "" : `<div class="comp-hint">⚠ ${c.total - c.evaluated} rule(s) couldn't be evaluated. Add the missing lot / setback inputs for a proper estimate.</div>`}
+          </div>`;
+        })() : ""}
         <div class="actions no-print">
           <button class="primary-btn" id="saveBtn">Save project</button>
           <button class="secondary-btn" onclick="window.print()">Export PDF</button>
