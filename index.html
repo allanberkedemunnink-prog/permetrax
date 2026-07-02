@@ -106,12 +106,22 @@
   .impact .fix { color:#7f1d1d; font-size:14px; }
 
   .cite { margin-top:8px; }
-  .cite-link { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600;
-    color:var(--brand); text-decoration:none; background:#eef2ff; border:1px solid #c7d2fe;
-    padding:3px 9px; border-radius:6px; }
-  .cite-link:hover { background:#e0e7ff; text-decoration:underline; }
-  .cite-link .ext { opacity:.65; font-weight:700; }
-  .cite-note { color:var(--muted); font-size:11px; margin-top:4px; line-height:1.45; }
+  .cite > summary { list-style:none; cursor:pointer; display:inline-block; }
+  .cite > summary::-webkit-details-marker { display:none; }
+  .cite-chip { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600;
+    color:var(--brand); background:#eef2ff; border:1px solid #c7d2fe; padding:3px 9px; border-radius:6px; }
+  .cite-chip::before { content:"▸"; font-size:9px; }
+  .cite[open] .cite-chip::before { content:"▾"; }
+  .cite[open] .cite-chip { background:#e0e7ff; }
+  .cite-inner { margin-top:8px; padding:10px 12px; background:#fff; border:1px solid var(--line);
+    border-left:3px solid var(--brand); border-radius:6px; }
+  .cite-what { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); margin-bottom:6px; }
+  .cite-quote { margin:0 0 8px; font-size:13px; font-style:italic; color:#1e293b; line-height:1.55;
+    border-left:2px solid #cbd5e1; padding-left:10px; }
+  .cite-standard { font-size:13px; color:#1e293b; margin-bottom:8px; }
+  .cite-note { color:var(--muted); font-size:11.5px; margin:0 0 8px; line-height:1.45; }
+  .cite-link { font-size:12px; font-weight:600; color:var(--brand); text-decoration:none; }
+  .cite-link:hover { text-decoration:underline; }
   .cite-sample { color:#94a3b8; font-style:italic; font-size:11.5px; margin-top:8px; }
   .src-line { margin-top:10px; font-size:12.5px; color:#475569; }
   .src-line a { color:var(--brand); font-weight:600; }
@@ -492,7 +502,7 @@ const JURISDICTIONS = {
         disclaimer:"Chicago accessory buildings/structures from the Zoning Ordinance § 17-9-0200 (American Legal, July 2026). Simplified — an accessory building/structure in a required rear setback may not exceed 15 ft (coach houses excepted). Not legal advice.",
         rules:{
           max_height_ft:{value:15,severity:"high",label:"Maximum accessory-structure height",why:"Keeps detached garages and sheds subordinate to the principal building.",
-            citation:{code:"Chicago Zoning Ord.",section:"§ 17-9-0200",url:"https://codelibrary.amlegal.com/codes/chicago/latest/chicagozoning_il/0-0-0-50598",quote:"15 feet in height",note:"Applies to an accessory building/structure in a required rear setback (coach houses excepted)."}}
+            citation:{code:"Chicago Zoning Ord.",section:"§ 17-9-0200",url:"https://codelibrary.amlegal.com/codes/chicago/latest/chicagozoning_il/0-0-0-50598",quote:"No accessory building or structure located in a required rear setback, other than a coach house, may exceed 15 feet in height",note:"Applies to an accessory building/structure in a required rear setback (coach houses excepted)."}}
         }
       }
     }
@@ -513,7 +523,7 @@ const JURISDICTIONS = {
         citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(c)",url:"https://ecode360.com/42654131#42654143",quote:"No building shall exceed two stories"}},
       max_far:{value:0.65,severity:"medium",label:"Maximum floor-area ratio (FAR)",
         why:"FAR caps total floor area relative to lot size, limiting bulk (FAR bonuses up to 0.80 may apply but are not modeled here).",
-        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(d)",url:"https://ecode360.com/42654131#42654144",quote:"residential use shall not exceed 0.65",
+        citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.2503(d)",url:"https://ecode360.com/42654131#42654144",quote:"The floor area ratio of all buildings on a lot developed for residential use shall not exceed 0.65",
           note:"Base FAR 0.65. Design-element bonuses can raise the cap to 0.80 — bonuses are not modeled here."}},
       setback_front_ft:{value:20,severity:"high",label:"Minimum front-yard setback",
         why:"Front setbacks maintain a consistent streetscape and sight lines.",
@@ -533,18 +543,14 @@ const JURISDICTIONS = {
         zone:"C-2 Commercial",
         code_name:"Redondo Beach Municipal Code § 10-2.622 (C-2 zone)",
         code_url:"https://ecode360.com/42654386",
-        disclaimer:"Redondo Beach C-2 commercial standards from Municipal Code § 10-2.622 (eCode360, retrieved July 2026). Simplified — additional standards apply where a C-2 lot is contiguous to a residential zone. Not legal advice.",
+        disclaimer:"Redondo Beach C-2 commercial standards from Municipal Code § 10-2.622 (eCode360, retrieved July 2026). Simplified — side and rear setbacks are CONDITIONAL (they apply only on corner lots or where the lot abuts a residential zone), so they are not scored here. Not legal advice.",
         rules:{
           max_far:{value:0.5,severity:"high",label:"Maximum floor-area ratio (FAR)",why:"FAR caps commercial floor area relative to lot size.",
-            citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.622(a)",url:"https://ecode360.com/42654386",quote:"floor area ratio (F.A.R.) of all buildings on a lot shall not exceed 0.5"}},
+            citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.622(a)",url:"https://ecode360.com/42654386",quote:"The floor area ratio (F.A.R.) of all buildings on a lot shall not exceed 0.5"}},
           max_height_ft:{value:30,severity:"high",label:"Maximum building height",why:"Height limits keep commercial buildings in scale with the district.",
-            citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.622(b)",url:"https://ecode360.com/42654386"}},
+            citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.622(b)",url:"https://ecode360.com/42654386",quote:"No building or structure shall exceed a height of 30 feet"}},
           setback_front_ft:{value:5,severity:"medium",label:"Minimum front setback",why:"Front setbacks maintain the streetscape.",
-            citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.622",url:"https://ecode360.com/42654386"}},
-          setback_side_ft:{value:10,severity:"medium",label:"Minimum side setback",why:"Side setbacks provide separation, especially near residential.",
-            citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.622",url:"https://ecode360.com/42654386"}},
-          setback_rear_ft:{value:20,severity:"medium",label:"Minimum rear setback",why:"Rear setbacks protect abutting properties.",
-            citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.622",url:"https://ecode360.com/42654386"}}
+            citation:{code:"Redondo Beach Muni. Code",section:"§ 10-2.622",url:"https://ecode360.com/42654386",quote:"There shall be a minimum front setback of five feet the full width of the lot"}}
         }
       },
       small_structure:{
@@ -985,16 +991,30 @@ function citeHref(c){
   return c.quote ? `${c.url}:~:text=${encodeURIComponent(c.quote)}` : c.url;
 }
 
+const RULE_UNIT = { max_height_ft:" ft", max_floors:" stories", setback_front_ft:" ft",
+  setback_side_ft:" ft", setback_rear_ft:" ft", lot_coverage_max_percent:"%", max_far:"",
+  min_lot_area_sqft:" sq ft", min_lot_width_ft:" ft", max_impervious_percent:"%", min_parking_spaces:" spaces" };
+
+// Shows the exact code text IN-APP (reliable in every browser), with a link to the official
+// source. Prose codes get the verbatim sentence; table-based codes get the standard as printed.
 function citationHTML(ruleKey, J){
   const rule = J && J.rules ? J.rules[ruleKey] : null;
   if (!rule) return "";
   const c = rule.citation;
   if (!c) return `<div class="cite-sample">⚠ Sample dataset — illustrative rule, no official source.</div>`;
-  const tip = c.quote ? `Opens the code and highlights: “${c.quote}”` : "Opens the code at this section";
-  return `<div class="cite">
-      <a class="cite-link" href="${esc(citeHref(c))}" target="_blank" rel="noopener" title="${esc(tip)}">📄 ${esc(c.code)} ${esc(c.section)} <span class="ext">↗</span></a>
-      ${c.note ? `<div class="cite-note">${esc(c.note)}</div>` : ""}
-    </div>`;
+  const unit = RULE_UNIT[ruleKey] || "";
+  const exact = c.quote
+    ? `<blockquote class="cite-quote">"${esc(c.quote)}"</blockquote>`
+    : `<div class="cite-standard"><strong>${esc(rule.label)}:</strong> ${esc(rule.value)}${esc(unit)}</div>`;
+  return `<details class="cite">
+      <summary><span class="cite-chip">📄 ${esc(c.code)} ${esc(c.section)}</span></summary>
+      <div class="cite-inner">
+        <div class="cite-what">What the code says${c.quote ? "" : " (from the standards table)"}:</div>
+        ${exact}
+        ${c.note ? `<div class="cite-note">Note: ${esc(c.note)}</div>` : ""}
+        <a class="cite-link" href="${esc(citeHref(c))}" target="_blank" rel="noopener">View in the official code ↗</a>
+      </div>
+    </details>`;
 }
 
 function checksColumn(title, variant, items, empty, J){
@@ -1065,7 +1085,7 @@ function renderResults(result){
         <span class="muted"> · dataset ${esc(rs.dataset_version)}</span>
         <span class="src-badge ${rs.source_type==="official"?"src-official":"src-sample"}">${rs.source_type==="official"?"✓ Official code · cited":"Sample data"}</span></div>
       ${rs.source_type==="official"
-        ? `<div class="src-line">Source: <a href="${esc(rs.code_url)}" target="_blank" rel="noopener">${esc(rs.code_name)} ↗</a> — each check below links to (and highlights) the exact code text.</div>`
+        ? `<div class="src-line">Source: <a href="${esc(rs.code_url)}" target="_blank" rel="noopener">${esc(rs.code_name)} ↗</a> — expand any citation below to read the exact code text, then click through to the official source.</div>`
         : `<div class="src-line cite-sample">Fictional sample dataset — citations are illustrative only; there is no official source to link to.</div>`}
       <p class="disclaimer">${esc(rs.disclaimer)}</p>
     </div>

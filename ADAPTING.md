@@ -98,16 +98,24 @@ leaves those inputs blank.
    highlights it (section 5).
 7. **Save `index.html` and open it.** Your jurisdiction is in the dropdown and fully wired.
 
-## 5. Clickable, self-highlighting citations
+## 5. Citations — showing the exact code text
 
-`citation.url` is the link. If you also add `citation.quote` with text copied verbatim from
-the page, Permetrax appends a **text fragment** (`#:~:text=…`) so a modern browser scrolls to
-**and highlights** that exact sentence.
+Each check has an expandable "What the code says" citation that displays the exact standard
+**inside the app** (reliable in every browser) and links to the official source.
 
-- The `quote` must match the page text closely (matching is case-insensitive).
-- It degrades gracefully: browsers without text-fragment support still land on the section
-  via the regular anchor, and sites that don't expose the text just open at the top.
-- For PDF-only codes, you can instead deep-link to a page with `…/code.pdf#page=47`.
+- `citation.url` — the link to the official code section.
+- `citation.quote` *(optional)* — the **verbatim sentence** from the code. When present, it's
+  shown in a blockquote so the user reads the exact wording without leaving the page. Use this
+  for prose-based codes (e.g. eCode360, American Legal).
+- When there's no `quote` (e.g. table-based codes like Austin's Municode), the citation falls
+  back to showing the standard itself ("Maximum building height: 35 ft") drawn from the rule's
+  `label` and `value`.
+- `citation.note` *(optional)* — a caveat shown under the text (e.g. "averaging not modeled").
+
+> Why in-app text instead of highlighting on the destination site? Third-party code viewers
+> render differently (many are dynamic apps) and browsers vary, so an on-site highlight can't
+> be guaranteed. Showing the verbatim text in Permetrax is reliable everywhere; the source
+> link is always there as the authoritative reference.
 
 ## 6. Tuning scoring & ratings (optional)
 
